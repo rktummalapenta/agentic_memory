@@ -120,27 +120,61 @@ Memory agent:     Retains prior query → applies filter → correct SQL
 
 ### Dataset
 
-**Primary: Synthetic Enterprise SQLite Database**
+Three real public data sources — no synthetic data, no IP concerns, fully publishable.
 
-```sql
--- Four interconnected tables
-orders      (10,000 rows)  — order_id, customer_id, region, amount, date, status
-customers    (2,000 rows)  — customer_id, segment, tier, account_manager
-products       (500 rows)  — product_id, category, unit_price, cost
-returns      (1,200 rows)  — return_id, order_id, reason, amount
+**Source 1 — Northwind (Enterprise Sales)**
+
+```
+Source:   github.com/jpwhite3/northwind-SQLite3  (auto-downloaded by setup script)
+Tables:   Orders, OrderDetails, Customers, Products, Categories, Employees
+Size:     830 orders · 77 products · 91 customers
+Why:      Canonical enterprise schema — instantly recognizable to every
+          enterprise developer. Multi-table joins expose exactly where
+          stateless agents fail on pronoun references like "that category"
+          or "those customers."
+Sessions: 100
 ```
 
-**Query Session Dataset — 3 Complexity Tiers**
+**Source 2 — SEC EDGAR (Public Company Financials)**
 
-| Tier | Sessions | Turns | Description |
-|---|---|---|---|
-| Tier 1: Single-Turn | 60 | 1 | No context dependency. Control group. Memory should show ≈0% benefit. |
-| Tier 2: Multi-Turn Simple | 80 | 3–5 | Pronoun resolution, filter accumulation across turns |
-| Tier 3: Multi-Turn Complex | 60 | 6–10 | Full analyst session: cross-period comparison, entity tracking, joins |
+```
+Source:   data.sec.gov/api/xbrl/companyfacts  (free public API — no key needed)
+Tables:   annual_financials, quarterly_financials, companies  (SQLite views)
+Size:     ~8,000 records · 20 companies · 7 metrics · 10+ years
+Metrics:  revenue, operating_income, net_income, total_assets,
+          total_liabilities, eps, cash
+Coverage: Apple, Microsoft, NVIDIA, Alphabet, Amazon, Meta, JPMorgan,
+          Tesla, Visa, Exxon, UnitedHealth, Walmart, and 8 others
+Why:      Real data CFOs and analysts actually use. Strong Forbes angle.
+          All public SEC filings — zero IP risk.
+Sessions: 120
+```
 
-**Secondary Domains**
-- 50 IT helpdesk sessions (multi-turn ticket resolution)
-- 50 HR policy Q&A sessions (role-based compliance queries)
+**Source 3 — BIRD Benchmark (Financial)**
+
+```
+Source:   bird-bench.github.io  (register for full download, or auto-built proxy)
+Tables:   account, client, loan, trans, card, district  (Czech bank data)
+Size:     682 loans · 5,369 clients · 1,057 transactions
+Why:      Published academic benchmark — MBS results are directly
+          peer-comparable to other Text-to-SQL papers.
+          Evidence annotations (business logic rules) map exactly to
+          what semantic memory should store.
+Sessions: 80
+```
+
+**Session Dataset — 300 Sessions, 1,400 Turns**
+
+| Tier | Sessions | Turns | Mem-Critical | Description |
+|---|---|---|---|---|
+| T1: Single-Turn | 90 | 90 | 0% | Control group. Memory should add zero benefit here. |
+| T2: Multi-Turn Simple | 120 | 480 | ~60% | 3–5 turns. Pronoun resolution, filter carry-forward. |
+| T3: Multi-Turn Complex | 90 | 830 | ~85% | 6–10 turns. Full analyst sessions, entity chains. |
+| **Total** | **300** | **1,400** | **~30%** | |
+
+A **memory-critical turn** is one where the correct SQL requires an entity, filter, or result from a prior turn. Stateless agents fail these turns. Memory-enabled agents should not. This is where the MBS curve diverges from zero.
+
+**Publishable framing:** *"We evaluate memory benefit across three enterprise domains — a standard benchmark (BIRD), a canonical enterprise schema (Northwind), and real financial analytics queries (SEC EDGAR) — to test whether the memory benefit generalizes across query types and domains."*
 
 ### Key Metrics
 
@@ -509,31 +543,72 @@ Langfuse               — multi-agent trace correlation (critical for Series #3
 
 ## 11. Data Specification
 
-All datasets are **synthetic** — purpose-built to replicate enterprise conditions without any real organizational data. Every dataset is generated programmatically and publishable as part of this benchmark suite.
+All datasets for Experiment 0 use **real public data sources** — downloaded programmatically, no IP concerns, fully publishable as part of EnterpriseMem-Bench. Experiments 1–5 continue to use synthetic corpora for the larger document datasets (IT/HR/Legal) where no suitable public benchmark exists.
 
-### Primary Datasets
+### E0 Datasets — Real Public Sources
+
+| Dataset | Source | Size | Script |
+|---|---|---|---|
+| Northwind (Enterprise Sales) | github.com/jpwhite3/northwind-SQLite3 | 830 orders · 77 products | `data/northwind/load_northwind.py` |
+| SEC EDGAR (Company Financials) | data.sec.gov/api/xbrl/companyfacts | ~8K records · 20 companies | `data/sec_edgar/load_sec_edgar.py` |
+| BIRD Benchmark (Financial) | bird-bench.github.io | 682 loans · 5,369 clients | `data/bird/load_bird.py` |
+| Multi-Turn Sessions | Built from above 3 sources | 300 sessions · 1,400 turns | `data/sessions/build_sessions.py` |
+
+### E1–E5 Datasets — Synthetic
 
 | Dataset | Size | Generator | Used In |
 |---|---|---|---|
-| Enterprise SQLite DB | 13,700 rows across 4 tables | Python Faker + domain templates | E0 |
-| Query Session Dataset | 200 sessions, 3 complexity tiers | Claude API + hand-crafted ground truth SQL | E0 |
-| IT/HR/Legal Corpus | 5,000 documents | Claude API, domain-specific prompts | E1, E3 |
+| IT/HR/Legal Corpus | 5,000 documents | Claude API + domain templates | E1, E3 |
 | Extended Retrieval Corpus | 100,000 documents | Claude API + template expansion | E3 |
 | Compression Session Dataset | 2,250 turns across 150 sessions | Claude API + entity annotation | E2 |
-| Temporal Knowledge Base | 300 items × 3 domains with change schedule | Custom generator + temporal tags | E4 |
+| Temporal Knowledge Base | 300 items × 3 domains | Custom generator + temporal tags | E4 |
 | Multi-Agent Task Suite | 50 workflow tasks × 3 domains | Hand-crafted + Claude API | E5 |
 | Contamination Injection Set | 20 adversarial scenarios | Custom injection framework | E5 |
 
+### Why Real Data for E0
+
+Using real public data for the foundation experiment makes the research stronger in three distinct ways:
+
+**Credibility** — BIRD is a peer-reviewed published benchmark. MBS results computed on BIRD are directly comparable to other published Text-to-SQL papers. A reviewer cannot dismiss the results as "only valid on your synthetic data."
+
+**Relatability** — Northwind is the enterprise schema that every developer has seen. SEC EDGAR is real data that CFOs, analysts, and finance teams actually query. Forbes readers recognize both immediately.
+
+**Generalizability** — Consistent MBS across three domains (sales analytics, public company financials, banking) proves the memory benefit is not schema-specific. It is a property of multi-turn task structure.
+
 ### Ground Truth Standard
 
-Every primary evaluation dataset includes hand-crafted ground truth:
+Every E0 session has hand-crafted ground truth SQL for each turn:
 
-- **E0:** Correct SQL per query (enables objective accuracy scoring)
-- **E1:** Relevance labels per query-document pair (0–3 graded)
-- **E2:** Annotated decision-critical entities per conversation session
-- **E3:** Same as E1 + cross-domain transfer pairs
-- **E4:** Ground truth values at each time point T=0,7,14,30,60
-- **E5:** Expected task output + contamination propagation map
+- Correct SQL is written once, reviewed, and stored in `all_sessions.json`
+- Evaluation compares result sets — order-insensitive exact match
+- No LLM-as-judge needed for core accuracy scoring
+- `memory_benefit_expected` flag marks which turns are memory-critical
+
+```json
+{
+  "session_id": "SEC-T2-001",
+  "source": "sec_edgar",
+  "tier": 2,
+  "turns": [
+    {
+      "turn_number": 1,
+      "question": "Show Apple revenue for the last 4 years.",
+      "ground_truth_sql": "SELECT name, fiscal_year, value_billions FROM annual_financials WHERE ticker='AAPL' AND metric='revenue' AND fiscal_year>='2020' ORDER BY fiscal_year",
+      "requires_prior_context": false,
+      "memory_benefit_expected": false
+    },
+    {
+      "turn_number": 2,
+      "question": "Which year had the biggest growth jump?",
+      "ground_truth_sql": "SELECT ...",
+      "requires_prior_context": true,
+      "memory_benefit_expected": true,
+      "context_needed": "ticker=AAPL from turn 1",
+      "note": "Stateless agent loses ticker — must ask for clarification or fails"
+    }
+  ]
+}
+```
 
 ---
 
@@ -642,69 +717,52 @@ Three papers from six experiments, each making a distinct citable contribution.
 ```
 agentic_memory/
 │
-├── DESIGN.md                          ← This document
-├── README.md                          ← Project overview + quickstart
+├── DESIGN.md                          ← This document (full architecture)
+├── SPEC.md                            ← Technical specification
+├── PHASES.md                          ← 20-week execution roadmap
+├── README.md                          ← Quick start
+├── requirements.txt
+├── .env.example
+├── docker-compose.yml                 ← Redis + ChromaDB + Langfuse
 │
 ├── data/
-│   ├── generate_enterprise_db.py      ← SQLite database generator (E0)
-│   ├── generate_query_sessions.py     ← 200-session query dataset (E0)
-│   ├── generate_corpus.py             ← 5K + 100K document corpus (E1, E3)
-│   ├── generate_compression_data.py   ← 2,250-turn session dataset (E2)
-│   ├── generate_temporal_kb.py        ← Temporal knowledge base (E4)
-│   └── generate_multiagent_tasks.py   ← 50-task multi-agent suite (E5)
+│   ├── northwind/
+│   │   └── load_northwind.py          ← Downloads Northwind SQLite (auto)
+│   ├── sec_edgar/
+│   │   └── load_sec_edgar.py          ← Pulls 20 companies from SEC API
+│   ├── bird/
+│   │   └── load_bird.py               ← BIRD financial subset or proxy
+│   ├── sessions/
+│   │   └── build_sessions.py          ← Builds 300 multi-turn sessions
+│   └── load_all.py                    ← Master script — runs all 4 in order
 │
 ├── agents/
-│   ├── stateless_agent.py             ← Condition A baseline
-│   ├── working_memory_agent.py        ← Condition B
-│   ├── episodic_memory_agent.py       ← Condition C
-│   ├── full_memory_agent.py           ← Condition D
-│   └── text_to_sql_agent.py           ← SQL generation + execution
+│   └── base_agent.py                  ← Conditions A / B / C / D
 │
 ├── memory/
-│   ├── chromadb_store.py              ← Episodic + semantic (local)
-│   ├── pinecone_store.py              ← Episodic (cloud vector)
-│   ├── neo4j_store.py                 ← Semantic (graph)
-│   ├── redis_store.py                 ← Working memory / KV
-│   └── mem0_lifecycle.py              ← Memory add/search/update/expire
+│   ├── chromadb_store.py              ← Episodic + semantic memory
+│   ├── redis_store.py                 ← Working memory + TTL
+│   └── neo4j_store.py                 ← Knowledge graph (E1, E5)
+│
+├── evaluation/
+│   ├── sql_evaluator.py               ← Result-set exact match
+│   └── mbs_calculator.py             ← MBS formula + turn-depth curve
 │
 ├── experiments/
 │   ├── exp0_foundation/
-│   │   ├── run_experiment.py
-│   │   ├── evaluate_sql.py
-│   │   └── compute_mbs.py
+│   │   └── run_experiment.py          ← 4-condition E0 runner
 │   ├── exp1_backends/
 │   ├── exp2_compression/
-│   │   └── compute_irq.py
 │   ├── exp3_retrieval/
 │   ├── exp4_staleness/
-│   │   └── compute_mfs.py
 │   └── exp5_multiagent/
-│       └── compute_rcr.py
-│
-├── evaluation/
-│   ├── mbs_calculator.py              ← Memory Benefit Score
-│   ├── irq_calculator.py              ← Information Retention Quotient
-│   ├── mfs_calculator.py              ← Memory Freshness Score
-│   ├── rcr_calculator.py              ← Retrieval Contamination Rate
-│   ├── llm_judge.py                   ← GPT-4o as quality evaluator
-│   ├── ragas_eval.py                  ← Retrieval evaluation pipeline
-│   └── statistical_tests.py          ← Mann-Whitney U, t-test
-│
-├── notebooks/
-│   ├── E0_results_analysis.ipynb
-│   ├── E1_backend_comparison.ipynb
-│   ├── E2_compression_pareto.ipynb
-│   ├── E3_retrieval_pipeline.ipynb
-│   ├── E4_staleness_curves.ipynb
-│   └── E5_contamination_analysis.ipynb
 │
 ├── config/
-│   ├── experiment_config.yaml         ← Shared config: models, thresholds, budgets
-│   └── domain_decay_rates.yaml        ← λ values per domain (E4)
+│   └── experiment_config.yaml
 │
-├── docker-compose.yml                 ← Redis + Langfuse + ChromaDB local setup
-├── requirements.txt
-└── .env.example                       ← API key placeholders (never commit keys)
+├── notebooks/                         ← Results analysis per experiment
+└── scripts/
+    └── verify_setup.py                ← Checks every component
 ```
 
 ---
@@ -748,26 +806,33 @@ docker-compose up -d
 # Starts: Redis (port 6379) + Langfuse (port 3000) + ChromaDB (port 8000)
 ```
 
-### 4. Generate Base Data (Start Here)
+### 4. Load Datasets
 
 ```bash
-# Generate the enterprise SQLite database
-python data/generate_enterprise_db.py
+# Run all data scripts in one command
+python data/load_all.py
 
-# Generate 200-session query dataset with ground truth SQL
-python data/generate_query_sessions.py
+# Or individually:
+python data/northwind/load_northwind.py    # auto-downloads Northwind from GitHub
+python data/sec_edgar/load_sec_edgar.py   # pulls 20 companies from SEC API (free)
+python data/bird/load_bird.py             # downloads BIRD or builds proxy
+python data/sessions/build_sessions.py   # builds 300 sessions / 1,400 turns
 
-# Verify setup
-python -c "import sqlite3; c=sqlite3.connect('data/enterprise.db'); print('Tables:', c.execute(\"SELECT name FROM sqlite_master WHERE type='table'\").fetchall())"
+# Verify everything
+python scripts/verify_setup.py
 ```
 
 ### 5. Run Experiment 0
 
 ```bash
+# Smoke test first (~5 min, ~$0.50)
+python experiments/exp0_foundation/run_experiment.py --smoke-test
+
+# Full run (~2 hrs, ~$12)
 python experiments/exp0_foundation/run_experiment.py \
   --conditions A B C D \
   --tiers 1 2 3 \
-  --sessions 200
+  --sessions 300
 
 # Results written to: experiments/exp0_foundation/results/
 # MBS curve generated: notebooks/E0_results_analysis.ipynb

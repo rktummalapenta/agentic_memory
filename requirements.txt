@@ -1,0 +1,36 @@
+# ── LLM APIs ─────────────────────────────────────────────────
+openai>=1.30.0
+anthropic>=0.25.0
+
+# ── Agent Orchestration ───────────────────────────────────────
+langchain>=0.2.0
+langchain-openai>=0.1.0
+langchain-community>=0.2.0
+langgraph>=0.1.0
+
+# ── Memory Backends ───────────────────────────────────────────
+chromadb>=0.5.0
+redis>=5.0.0
+pinecone-client>=3.0.0
+
+# ── Data & SQL ────────────────────────────────────────────────
+faker>=25.0.0
+sqlalchemy>=2.0.0
+sqlparse>=0.5.0
+
+# ── Config & Utilities ────────────────────────────────────────
+python-dotenv>=1.0.0
+pyyaml>=6.0.0
+rich>=13.0.0
+tiktoken>=0.7.0
+
+# ── Analysis & Evaluation ─────────────────────────────────────
+pandas>=2.2.0
+scipy>=1.13.0
+numpy>=1.26.0
+
+# ── Visualization ─────────────────────────────────────────────
+matplotlib>=3.9.0
+
+# ── Testing ───────────────────────────────────────────────────
+pytest>=8.0.0
