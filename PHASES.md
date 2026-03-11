@@ -31,13 +31,15 @@ Phase 5 — Synthesis          ⬜  PLANNED
 - [x] Pinecone free account + API key
 - [ ] `pip install -r requirements.txt` — packages installed
 - [ ] `.env` file complete with all keys
-- [ ] Northwind database downloaded (`python data/northwind/setup_northwind.py`)
-- [ ] SEC EDGAR data pulled (`python data/sec_edgar/setup_sec_edgar.py`)
-- [ ] BIRD proxy built (`python data/bird/setup_bird.py`)
+- [ ] Northwind database downloaded (`python data/northwind/load_northwind.py`)
+- [ ] SEC EDGAR data pulled (`python data/sec_edgar/load_sec_edgar.py`)
+- [ ] BIRD proxy built (`python data/bird/load_bird.py`)
 - [ ] 300 sessions built (`python data/sessions/build_sessions.py`)
+- [ ] E0 semantic memory seeded into ChromaDB (`python scripts/load_memory_backends.py --experiment e0`)
+- [ ] Runtime memory reset flow verified (`python scripts/reset_runtime_memory.py --experiment e0`)
 - [ ] Verify script all green (`python scripts/verify_setup.py`)
 
-**Exit criteria:** `verify_setup.py` shows all critical checks green.
+**Exit criteria:** source datasets are loaded, sessions are built, E0 semantic collections exist in ChromaDB, and `verify_setup.py` shows all critical checks green.
 
 ---
 
@@ -50,9 +52,12 @@ Does memory improve accuracy? By how much? At what turn depth does it start matt
 ### Steps
 
 **Week 1 — Smoke test + validate pipeline**
+- [ ] Reset Redis + per-run episodic collections before each run
+- [ ] Seed semantic ChromaDB collections from schema + glossary artifacts
 - [ ] Run smoke test: `python experiments/exp0_foundation/run_experiment.py --smoke-test`
 - [ ] Verify MBS curve is printing correctly
 - [ ] Fix any SQL execution errors on Northwind / SEC EDGAR / BIRD
+- [ ] Confirm episodic memory starts empty and fills only from prior turns in-session
 - [ ] Confirm agent conditions A/B/C/D all producing different results
 
 **Week 2 — Full experiment run**
@@ -94,12 +99,15 @@ Does it matter which memory backend you use? ChromaDB vs Pinecone vs Neo4j vs hy
 
 ### Prerequisites Before Starting
 - [ ] Pinecone index created (`enterprise-memory`, dim=1536, cosine)
+- [ ] Weaviate sandbox created for E1 corpus loading
 - [ ] Neo4j AuraDB instance created — URI + password in `.env`
 - [ ] E0 results complete (need baseline accuracy to compare against)
 
 ### Steps
 - [ ] Build E1 experiment runner (`experiments/exp1_backends/`)
-- [ ] Load corpus into all 4 backends (ChromaDB, Pinecone, Weaviate, Neo4j)
+- [ ] Generate one canonical chunked corpus for E1
+- [ ] Load the identical corpus into ChromaDB, Pinecone, Weaviate, and Neo4j
+- [ ] Validate corpus parity across backends (chunk count, IDs, metadata)
 - [ ] Run 3,000 retrieval queries across all backends
 - [ ] Measure: accuracy, latency (p50/p95), cost per query
 - [ ] Compute Domain Transfer Retention Rate (DTRR) per backend
@@ -120,6 +128,8 @@ Does a backend trained on IT queries handle HR queries well? This is the enterpr
 **Question:** Can we compress session history by 70% and keep 85%+ accuracy?
 
 - Compare 4 compression strategies: FIFO, static summary, entity-aware, importance-scored
+- Build the compression benchmark dataset and canonical annotations
+- Load full session histories into Redis and store compressed snapshots in ChromaDB
 - Named metric: Information Retention Quotient (IRQ)
 - Forbes angle: "Your AI is spending $0.40/session carrying context it doesn't need"
 
@@ -127,6 +137,8 @@ Does a backend trained on IT queries handle HR queries well? This is the enterpr
 **Question:** Sparse vs dense vs re-ranking — which retrieval pipeline performs best?
 
 - Pipelines: BM25, dense-only, hybrid, hybrid + cross-encoder, hybrid + LLM rerank
+- Build the extended retrieval corpus once, then load the same chunks into dense stores
+- Build BM25 lexical indexes from the same document IDs used in ChromaDB / Pinecone
 - Named metric: DTRR (Domain Transfer Retention Rate)
 - Forbes angle: "The retrieval pipeline is the memory system's bottleneck — and most teams are using the wrong one"
 
@@ -143,6 +155,8 @@ Target: EMNLP or SIGIR
 **Question:** When does memory become a liability? How do you manage decay?
 
 - 3 strategies: no management, fixed TTL, MFS decay
+- Seed the temporal knowledge base into Redis and ChromaDB with timestamps and confidence metadata
+- Reset the stores to the same T=0 state before evaluating each staleness strategy
 - Named metric: Memory Freshness Score (MFS)
 - Forbes angle: "Stale memory is worse than no memory — here's how to measure it"
 
@@ -150,6 +164,8 @@ Target: EMNLP or SIGIR
 **Question:** Can agents share memory without contaminating each other?
 
 - 4 architectures: isolated, shared flat, role-scoped, hierarchical controlled
+- Load the shared workflow corpus into Neo4j and ChromaDB, then create Redis namespaces per role
+- Inject contamination scenarios at runtime against the same base corpus for all architectures
 - Named metric: Retrieval Contamination Rate (RCR)
 - Forbes angle: "Multi-agent AI is the future. Shared memory is the landmine."
 

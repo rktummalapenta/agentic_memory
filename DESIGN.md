@@ -194,12 +194,20 @@ LangGraph         — stateful agent graph, 4 condition configurations
 ChromaDB          — episodic + semantic memory (local)
 Redis (Docker)    — working memory / session KV store
 mem0              — memory lifecycle: add / search / update
-SQLite            — synthetic enterprise database
+SQLite            — source databases for Northwind, SEC EDGAR, BIRD, and results storage
 SQLAlchemy        — SQL execution + ground truth validation
 GPT-4o-mini       — agent LLM
 Langfuse          — full agent tracing (feeds Series #3 Observability)
 W&B Weave         — experiment tracking + reproducibility
 ```
+
+### Data Loading and Memory Seeding
+
+- The three source datasets are loaded into local SQLite databases first: `northwind.db`, `sec_edgar.db`, and `bird.db`.
+- `build_sessions.py` materializes the canonical E0 benchmark file: 300 sessions, 1,400 turns, ground-truth SQL, and `memory_benefit_expected` annotations.
+- `load_memory_backends.py --experiment e0` seeds ChromaDB semantic collections with schema cards, table descriptions, column definitions, and business glossary entries for each source database.
+- Redis working memory and ChromaDB episodic memory both start empty at the beginning of every session; they are populated online during the run so Conditions B/C/D differ only by memory injection, not by preloaded session state.
+- `reset_runtime_memory.py --experiment e0` clears Redis namespaces and per-run episodic collections between runs to keep the benchmark reproducible.
 
 ---
 
@@ -244,7 +252,7 @@ NDCG@10            — Normalized Discounted Cumulative Gain
 Precision@K        — K = 1, 3, 5
 Query Latency      — p50 / p95 / p99 ms
 Cost per 1K Queries
-Domain Transfer Delta — train on IT, test on HR (cross-domain degradation %)
+Domain Transfer Retention Rate (DTRR) = accuracy on cross-domain queries / accuracy on same-domain queries × 100
 ```
 
 ### Tools
@@ -256,6 +264,12 @@ Weaviate Cloud         — hybrid BM25 + vector search
 Neo4j AuraDB (free)    — knowledge graph, Cypher, APOC plugins
 RAGAS                  — retrieval evaluation framework
 ```
+
+### Data Loading Plan
+
+- The E1 corpus is generated once into a canonical chunked JSONL file. Every backend is loaded from that same artifact so retrieval differences are attributable to the backend, not to preprocessing drift.
+- `load_memory_backends.py --experiment e1` writes the identical chunk set into ChromaDB, Pinecone, and Weaviate, then projects the same source corpus into Neo4j as entities, documents, and typed relationships.
+- Backend parity is part of setup: document counts, chunk IDs, metadata fields, and embedding model version must match across all vector stores before benchmarking begins.
 
 ---
 
@@ -309,6 +323,12 @@ GPT-4o-mini   — compression LLM + downstream evaluation
 W&B Weave     — track IRQ, token counts, accuracy per strategy
 ```
 
+### Data Handling Plan
+
+- The compression benchmark keeps one canonical copy of every session on disk and loads full histories into runtime state at execution time.
+- Redis stores the active full session history for online compression, while ChromaDB stores versioned compressed memory snapshots and entity-preserving summaries for replay and IRQ evaluation.
+- Every compression strategy operates on the same input sessions and writes comparable version metadata so token reduction and downstream accuracy are measured on identical workloads.
+
 ---
 
 ## 7. Experiment 3 — Retrieval Quality Pipelines
@@ -348,7 +368,7 @@ Precision@K (K=1,3,5,10)
 Recall@K
 MRR
 NDCG@10
-Domain Transfer Retention Rate (DTRR) = in-domain accuracy / cross-domain accuracy
+Domain Transfer Retention Rate (DTRR) = accuracy on cross-domain queries / accuracy on same-domain queries × 100
 Latency: p50 / p95 ms end-to-end
 Cost per 1K queries (commercial vs open-source re-rankers)
 ```
@@ -363,6 +383,12 @@ Cohere Rerank API  — commercial cross-encoder (1K/month free tier)
 ms-marco-MiniLM    — local cross-encoder (free)
 RAGAS              — full pipeline evaluation
 ```
+
+### Data Loading Plan
+
+- The E3 retrieval corpus is chunked once and persisted as the canonical retrieval dataset for dense, sparse, and hybrid pipelines.
+- `load_memory_backends.py --experiment e3` loads the same chunks into ChromaDB and Pinecone, while a BM25 lexical index is built locally from the same document IDs and chunk boundaries.
+- Re-rankers do not require a separate persistent database; they consume candidate sets returned from the dense and hybrid indexes.
 
 ---
 
@@ -421,6 +447,12 @@ ChromaDB          — episodic memory with creation_time metadata
 LangGraph         — pre-retrieval MFS filter in agent loop
 scipy.stats       — exponential decay curve fitting for λ calibration
 ```
+
+### Data Seeding Plan
+
+- The temporal knowledge base is stored canonically on disk, then seeded into Redis and ChromaDB with `created_at`, `updated_at`, `domain`, `base_confidence`, and version metadata.
+- Each strategy starts from the same T=0 seed state. The change schedule mutates the canonical source, and the loader applies refreshes back into the stores according to the strategy under test.
+- Redis exercises TTL behavior directly; ChromaDB metadata supports selective refresh and freshness scoring for longer-lived episodic memory items.
 
 ---
 
@@ -491,6 +523,12 @@ ChromaDB               — shared episodic memory (collection-level access)
 Langfuse               — multi-agent trace correlation (critical for Series #3)
 ```
 
+### Data Loading Plan
+
+- The shared workflow corpus and contamination scenarios are stored once on disk, then loaded into Neo4j as role-tagged graph structures and into ChromaDB as role-scoped episodic collections.
+- Redis creates isolated working-memory namespaces per agent role: `planner`, `researcher`, `writer`, `reviewer`, `coordinator`.
+- Architecture comparisons change the read/write access policy over the same loaded content. This keeps contamination-rate comparisons controlled across isolated, flat-shared, role-scoped, and hierarchical modes.
+
 ---
 
 ## 10. Complete Tech Stack
@@ -499,11 +537,11 @@ Langfuse               — multi-agent trace correlation (critical for Series #3
 
 | Tool | Memory Type | Tier | Experiments |
 |---|---|---|---|
-| ChromaDB | Episodic + Semantic | Free / open source | E0, E1, E2, E3, E5 |
+| ChromaDB | Episodic + Semantic | Free / open source | E0, E1, E2, E3, E4, E5 |
 | Pinecone | Episodic (vector) | Free tier (1 index, 100K vectors) | E1, E3 |
 | Weaviate Cloud | Episodic + hybrid | Free sandbox | E1 |
 | Neo4j AuraDB | Semantic (graph) | Free tier (1 instance) | E1, E5 |
-| Redis | Working memory / KV | Free (local Docker) | E0, E4, E5 |
+| Redis | Working memory / KV | Free (local Docker) | E0, E2, E4, E5 |
 | mem0 | Memory lifecycle mgmt | Open source | E0, E2, E4 |
 | SQLite | SQL target / procedural | Free (stdlib) | E0 |
 
@@ -564,6 +602,17 @@ All datasets for Experiment 0 use **real public data sources** — downloaded pr
 | Temporal Knowledge Base | 300 items × 3 domains | Custom generator + temporal tags | E4 |
 | Multi-Agent Task Suite | 50 workflow tasks × 3 domains | Hand-crafted + Claude API | E5 |
 | Contamination Injection Set | 20 adversarial scenarios | Custom injection framework | E5 |
+
+### Storage Loading Matrix
+
+| Experiment | Canonical Dataset on Disk | SQLite | Redis | ChromaDB | Pinecone / Weaviate | Neo4j | Loading Mode |
+|---|---|---|---|---|---|---|---|
+| E0 Foundation | Public source DBs + `all_sessions.json` | Source-of-truth query execution | Per-session working memory | Semantic collections pre-seeded; episodic collections populated during runs | — | — | Mixed: preload semantic, runtime episodic |
+| E1 Backends | 5K corpus + relevance labels | Metadata / labels only | Optional run state | Full corpus loaded | Full corpus loaded | Corpus projected as graph | Preload before benchmark |
+| E2 Compression | Compression sessions + annotations | Canonical session store | Active full histories | Versioned compressed memories | — | — | Runtime load + snapshot writes |
+| E3 Retrieval | 100K corpus + labels | Metadata / labels only | Optional run state | Dense index loaded | Dense / hybrid indexes loaded | — | Preload before benchmark |
+| E4 Staleness | Temporal KB + change schedule | Canonical timeline store | TTL-managed active memory | Timestamped episodic memory with freshness metadata | — | — | Seed at T=0, refresh by strategy |
+| E5 Multi-Agent | Workflow tasks + injections | Task metadata / outputs | Role-scoped working memory | Role-scoped episodic collections | — | Shared role-tagged graph | Preload shared corpus, inject adversarial facts at runtime |
 
 ### Why Real Data for E0
 
@@ -762,6 +811,8 @@ agentic_memory/
 │
 ├── notebooks/                         ← Results analysis per experiment
 └── scripts/
+    ├── load_memory_backends.py        ← Loads corpora into ChromaDB / Pinecone / Weaviate / Neo4j
+    ├── reset_runtime_memory.py        ← Clears Redis + per-run memory namespaces between runs
     └── verify_setup.py                ← Checks every component
 ```
 
@@ -775,7 +826,7 @@ agentic_memory/
 # Python 3.11+
 python --version
 
-# Docker (for Redis + Langfuse)
+# Docker (for Redis + ChromaDB + Langfuse)
 docker --version
 ```
 
@@ -822,7 +873,17 @@ python data/sessions/build_sessions.py   # builds 300 sessions / 1,400 turns
 python scripts/verify_setup.py
 ```
 
-### 5. Run Experiment 0
+### 5. Seed Memory Stores
+
+```bash
+# Seed only the memory stores required for the experiment you want to run
+python scripts/load_memory_backends.py --experiment e0
+
+# Optional safety step between runs
+python scripts/reset_runtime_memory.py --experiment e0
+```
+
+### 6. Run Experiment 0
 
 ```bash
 # Smoke test first (~5 min, ~$0.50)
@@ -838,7 +899,7 @@ python experiments/exp0_foundation/run_experiment.py \
 # MBS curve generated: notebooks/E0_results_analysis.ipynb
 ```
 
-### 6. View Traces
+### 7. View Traces
 
 Open Langfuse at `http://localhost:3000` to inspect full agent traces for every experiment run.
 

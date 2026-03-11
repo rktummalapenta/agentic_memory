@@ -105,14 +105,35 @@ Four conditions. Identical LLM, identical prompt structure. Only the memory inje
 
 ### 5.4 Memory Stack by Experiment
 
-| Experiment | Redis | ChromaDB | Pinecone | Neo4j |
+| Experiment | Redis | ChromaDB | Pinecone | Weaviate | Neo4j |
+|---|---|---|---|---|---|
+| E0 Foundation | ✓ | ✓ | — | — | — |
+| E1 Backend Benchmark | ✓ | ✓ | ✓ | ✓ | ✓ |
+| E2 Compression | ✓ | ✓ | — | — | — |
+| E3 Retrieval Quality | ✓ | ✓ | ✓ | — | — |
+| E4 Staleness & TTL | ✓ | ✓ | — | — | — |
+| E5 Multi-Agent | ✓ | ✓ | — | — | ✓ |
+
+### 5.5 Data Loading Plan by Experiment
+
+Every experiment follows the same rule: one canonical dataset is stored on disk first, then loader scripts project that data into the runtime databases required by the experiment.
+
+| Experiment | Canonical Artifact | What Gets Loaded | Target Databases | Load Timing |
 |---|---|---|---|---|
-| E0 Foundation | ✓ | ✓ | — | — |
-| E1 Backend Benchmark | ✓ | ✓ | ✓ | ✓ |
-| E2 Compression | ✓ | ✓ | — | — |
-| E3 Retrieval Quality | ✓ | ✓ | ✓ | — |
-| E4 Staleness & TTL | ✓ | — | — | — |
-| E5 Multi-Agent | ✓ | ✓ | — | ✓ |
+| E0 Foundation | 3 SQLite source DBs + `all_sessions.json` | Schema docs, table metadata, glossary entries, per-run session turns | SQLite, ChromaDB, Redis | SQLite + semantic Chroma preloaded; Redis and episodic Chroma populated during runs |
+| E1 Backend Benchmark | Chunked corpus + relevance labels | Same chunk set and metadata for all stores; graph projection for relational queries | ChromaDB, Pinecone, Weaviate, Neo4j | Preloaded before benchmark |
+| E2 Compression | Annotated session histories | Full histories for runtime compression; versioned compressed snapshots | Redis, ChromaDB | Loaded at run start; snapshots written during evaluation |
+| E3 Retrieval Quality | Extended retrieval corpus + labels | Same chunk IDs into dense stores; same text into BM25 lexical index | ChromaDB, Pinecone, local BM25 index | Preloaded before benchmark |
+| E4 Staleness & TTL | Temporal KB + change schedule | Timestamped memory items with version and confidence metadata | Redis, ChromaDB | Seeded at T=0, refreshed per strategy |
+| E5 Multi-Agent | Workflow corpus + contamination scenarios | Role-scoped shared corpus, role tags, access metadata, injected adversarial facts | Redis, ChromaDB, Neo4j | Shared corpus preloaded, injections applied per run |
+
+### 5.6 Loader and Reset Responsibilities
+
+- `data/load_all.py` downloads and normalizes the source datasets for E0.
+- `data/sessions/build_sessions.py` builds the canonical multi-turn benchmark file with ground-truth SQL and memory-critical annotations.
+- `scripts/load_memory_backends.py --experiment <exp>` loads the required corpora into ChromaDB, Pinecone, Weaviate, and Neo4j, and seeds semantic collections needed before a run.
+- `scripts/reset_runtime_memory.py --experiment <exp>` clears Redis namespaces and per-run ChromaDB collections so runs start from the same initial state.
+- For E0, Redis working memory and ChromaDB episodic memory must start empty for every session; only semantic memory is pre-seeded.
 
 ---
 
@@ -188,18 +209,19 @@ RCR = injected_items_retrieved_by_non_injecting_agents / total_injected_items
 | Service | Role | Needed For |
 |---|---|---|
 | Pinecone | Cloud vector DB comparison | E1, E3 |
+| Weaviate Cloud | Hybrid vector + BM25 retrieval benchmark | E1 |
 | Neo4j AuraDB | Knowledge graph memory | E1, E5 |
 | Weights & Biases | Experiment tracking, MBS curves | All |
 
 ### Python Packages
 ```
-openai, anthropic                     # LLM APIs
+openai, anthropic                      # LLM APIs
 langchain, langchain-openai, langgraph # Orchestration
-chromadb, redis, pinecone-client      # Memory backends
-faker, sqlalchemy, sqlparse           # Data + SQL
-python-dotenv, pyyaml, rich           # Config + CLI
-pandas, scipy, numpy, matplotlib      # Analysis
-pytest                                # Testing
+chromadb, redis, pinecone-client, weaviate-client # Memory backends
+faker, sqlalchemy, sqlparse            # Data + SQL
+python-dotenv, pyyaml, rich            # Config + CLI
+pandas, scipy, numpy, matplotlib       # Analysis
+pytest                                 # Testing
 ```
 
 ---
@@ -217,13 +239,14 @@ agentic_memory/
 │
 ├── data/
 │   ├── northwind/
-│   │   └── setup_northwind.py       ← Downloads + verifies Northwind
+│   │   └── load_northwind.py        ← Downloads + verifies Northwind
 │   ├── sec_edgar/
-│   │   └── setup_sec_edgar.py       ← Pulls 20 companies from SEC API
+│   │   └── load_sec_edgar.py        ← Pulls 20 companies from SEC API
 │   ├── bird/
-│   │   └── setup_bird.py            ← BIRD financial subset / proxy
-│   └── sessions/
-│       └── build_sessions.py        ← Builds 300 multi-turn sessions
+│   │   └── load_bird.py             ← BIRD financial subset / proxy
+│   ├── sessions/
+│   │   └── build_sessions.py        ← Builds 300 multi-turn sessions
+│   └── load_all.py                  ← Runs all E0 data loaders in order
 │
 ├── agents/
 │   └── base_agent.py                ← Conditions A / B / C / D
@@ -251,6 +274,8 @@ agentic_memory/
 │
 ├── notebooks/                       ← Results analysis per experiment
 └── scripts/
+    ├── load_memory_backends.py      ← Loads corpora into the required memory stores
+    ├── reset_runtime_memory.py      ← Clears Redis + per-run memory namespaces
     └── verify_setup.py              ← Checks every component
 ```
 
