@@ -28,11 +28,11 @@ This benchmark will produce:
 # 2. Enterprise AI Reliability Stack
 
 This project is part of a broader research series.
-Layer 1 — LLM Gateway
-Layer 2 — Memory Systems
-Layer 3 — Observability
-Layer 4 — Agent Orchestration
-Layer 5 — Governance / Safety
+- Layer 1 — LLM Gateway
+- Layer 2 — Memory Systems
+- Layer 3 — Observability
+- Layer 4 — Agent Orchestration
+- Layer 5 — Governance / Safety
 
 
 Series #1 covered LLM Gateways.
