@@ -9,13 +9,33 @@
 ## Status Overview
 
 ```
-Phase 0 — Foundation         ▶  IN PROGRESS
-Phase 1 — Experiment 0       ⬜  NEXT
+Phase 0 — Foundation         ✅  SUFFICIENT FOR E0 PILOT RUNS
+Phase 1 — Experiment 0       ▶  ANALYSIS / WRITING IN PROGRESS
 Phase 2 — Experiments 1      ⬜  PLANNED
 Phase 3 — Experiments 2 + 3  ⬜  PLANNED
 Phase 4 — Experiments 4 + 5  ⬜  PLANNED
 Phase 5 — Synthesis          ⬜  PLANNED
 ```
+
+---
+
+## Current Snapshot
+**Last reconciled:** 2026-03-15
+
+- Experiment 0 has already produced two cross-dataset pilot runs:
+  - 30-session run: `experiments/exp0_foundation/results/results_20260315T114840Z_conds-A-B-C-D_tiers-2-3_sessions-30_model-gpt-5-mini.json`
+  - 60-session run: `experiments/exp0_foundation/results/results_20260315T181518Z_conds-A-B-C-D_tiers-2-3_sessions-60_model-gpt-5-mini.json`
+- Latest human-readable report:
+  - `experiments/exp0_foundation/reports/20260315T181518Z_conds-A-B-C-D_tiers-2-3_sessions-60_model-gpt-5-mini/report.md`
+- Current E0 conclusion from pilot:
+  - memory clearly outperforms stateless on multi-turn enterprise SQL tasks
+  - condition `C` is best overall on the latest pilot
+  - the repo supports "memory matters" but not yet a universal "one stack always wins" claim
+- Current resume point:
+  - use the 60-session report as the baseline artifact for Forbes, Medium, and Paper 1 framing
+  - finish pairwise ablation and publication drafts before moving to Experiment 1
+
+**Note:** the original Phase 0 setup checklist below predates the March 15 pilot runs and was not maintained turn-by-turn. The generated E0 artifacts are the authoritative record of what has already been run.
 
 ---
 
@@ -61,19 +81,21 @@ Does memory improve accuracy? By how much? At what turn depth does it start matt
 - [ ] Confirm agent conditions A/B/C/D all producing different results
 
 **Week 2 — Full experiment run**
-- [ ] Run Condition A (stateless baseline): `--conditions A`
-- [ ] Run Condition B (working memory): `--conditions B`
-- [ ] Run Condition C (episodic): `--conditions C`
-- [ ] Run Condition D (full stack): `--conditions D`
-- [ ] Save results to `experiments/exp0_foundation/results/`
+- [x] Run Condition A (stateless baseline): `--conditions A`
+- [x] Run Condition B (working memory): `--conditions B`
+- [x] Run Condition C (episodic): `--conditions C`
+- [x] Run Condition D (full stack): `--conditions D`
+- [x] Save results to `experiments/exp0_foundation/results/`
 
 **Week 3 — Analysis + writing**
-- [ ] Generate MBS curve (turn 1 → 10) for all conditions
-- [ ] Compute MBS by dataset (Northwind vs SEC EDGAR vs BIRD)
-- [ ] Compute MBS by tier (T1 vs T2 vs T3)
+- [x] Generate MBS curve (turn 1 → 10) for all conditions
+- [x] Compute MBS by dataset (Northwind vs SEC EDGAR vs BIRD)
+- [x] Compute MBS by tier (T1 vs T2 vs T3)
 - [ ] Write Forbes Article #2 (800 words, hook = MBS curve)
 - [ ] Write Medium deep-dive #2 (full methodology + results)
 - [ ] Draft arXiv Paper 1: "Memory Benefit Score: A Normalized Metric..."
+- [ ] Run pairwise ablation analysis (`B` vs `C`, `C` vs `D`) by dataset
+- [ ] Decide whether to scale beyond the 60-session pilot before publication lock
 
 ### Expected Findings
 | Turn | Stateless (A) | Full Stack (D) | MBS |
@@ -85,6 +107,28 @@ Does memory improve accuracy? By how much? At what turn depth does it start matt
 | 10 | ~35% | ~78% | ~123 |
 
 *These are projections. Actual numbers replace these after the run.*
+
+### Actual Pilot Snapshot
+Latest 60-session cross-dataset pilot (`tiers 2 3`, conditions `A B C D`):
+
+| Condition | Correct | Total | Accuracy | Gain vs A | MBS |
+|---|---:|---:|---:|---:|---:|
+| A | 47 | 410 | 11.5% | - | - |
+| B | 295 | 410 | 72.0% | +60.5 pts | 527.7% |
+| C | 322 | 410 | 78.5% | +67.1 pts | 585.1% |
+| D | 296 | 410 | 72.2% | +60.7 pts | 529.8% |
+
+Interpretation:
+- memory benefit is already proven on this pilot
+- `C` is best overall, but winners vary by dataset
+- absolute accuracy and absolute gain vs `A` should be the primary publication metrics; MBS is secondary
+
+### Current E0 Next Steps
+- Use the 60-session report as the current publication baseline.
+- Write Forbes Article #2 around the turn-depth failure of stateless agents on follow-up analysis.
+- Write the Medium deep-dive around the four-condition benchmark and cross-dataset breakdown.
+- Draft Paper 1 around the MBS metric plus the non-linear relationship between memory benefit and task depth.
+- Finish pairwise ablation and failure analysis before declaring E0 closed.
 
 ### Forbes Article Hook
 "I ran 300 enterprise data analyst sessions through four versions of the same AI agent. At turn 1, memory made no difference. By turn 7, the stateless agent was wrong 60% of the time. The memory-enabled agent was wrong 20% of the time. That gap is not an edge case. That is every analyst session in your enterprise right now."

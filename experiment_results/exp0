@@ -1,0 +1,181 @@
+
+time python3 experiments/exp0_foundation/run_experiment.py --conditions A B C D --tiers 2 3 --sessions 30
+
+› {
+    "A": {
+      "1": {
+        "accuracy": 0.4,
+        "mbs_vs_stateless": null
+      },
+      "2": {
+        "accuracy": 0.0333,
+        "mbs_vs_stateless": null
+      },
+      "3": {
+        "accuracy": 0.0,
+        "mbs_vs_stateless": null
+      },
+      "4": {
+        "accuracy": 0.0,
+        "mbs_vs_stateless": null
+      }
+    },
+    "B": {
+      "1": {
+        "accuracy": 0.4,
+        "mbs_vs_stateless": 0.0
+      },
+      "2": {
+        "accuracy": 0.5333,
+        "mbs_vs_stateless": 1500.0
+      },
+      "3": {
+        "accuracy": 1.0,
+        "mbs_vs_stateless": null
+      },
+      "4": {
+        "accuracy": 1.0,
+        "mbs_vs_stateless": null
+      }
+    },
+    "C": {
+      "1": {
+        "accuracy": 0.2333,
+        "mbs_vs_stateless": -41.6667
+      },
+      "2": {
+        "accuracy": 0.4,
+        "mbs_vs_stateless": 1100.0
+      },
+      "3": {
+        "accuracy": 1.0,
+        "mbs_vs_stateless": null
+      },
+      "4": {
+        "accuracy": 1.0,
+        "mbs_vs_stateless": null
+      }
+    },
+    "D": {
+      "1": {
+        "accuracy": 0.4333,
+        "mbs_vs_stateless": 8.3333
+      },
+      "2": {
+        "accuracy": 0.5667,
+        "mbs_vs_stateless": 1600.0
+      },
+      "3": {
+        "accuracy": 1.0,
+        "mbs_vs_stateless": null
+      },
+      "4": {
+        "accuracy": 1.0,
+        "mbs_vs_stateless": null
+      }
+    }
+  }
+
+  real    31m17.751s
+  user    0m36.447s
+  sys     0m7.529s
+   this is result for conditions A B C D for 30 sessions.
+
+
+• This is a meaningful E0 pilot result.
+
+  What it says
+
+  Assuming each turn bucket has 30 examples, the rough counts are:
+
+  - Turn 1:
+      - A: 0.4 = 12/30
+      - B: 0.4 = 12/30
+      - C: 0.2333 = 7/30
+      - D: 0.4333 = 13/30
+  - Turn 2:
+      - A: 0.0333 = 1/30
+      - B: 0.5333 = 16/30
+      - C: 0.4 = 12/30
+      - D: 0.5667 = 17/30
+  - Turn 3:
+      - A: 0/30
+      - B: 30/30
+      - C: 30/30
+      - D: 30/30
+  - Turn 4:
+      - A: 0/30
+      - B: 30/30
+      - C: 30/30
+      - D: 30/30
+
+  Conclusion
+
+  The core conclusion is strong: memory is decisively helping on later turns.
+
+  - Stateless A collapses after turn 1.
+  - All memory-enabled conditions massively outperform A on turns 2-4.
+  - By turns 3 and 4, memory is the difference between total failure and perfect accuracy on this slice.
+
+  That is exactly the kind of E0 pattern you want.
+
+  There is also a decomposition result:
+
+  - B is already very strong.
+  - D is slightly better than B on turns 1-2.
+  - C is worse than B on turns 1-2.
+
+  That suggests:
+
+  - working memory is doing most of the useful lifting here
+  - episodic retrieval alone may be introducing some noise
+  - semantic memory in D seems to recover some of that and slightly outperform B
+
+  So the ordering on this slice is roughly:
+
+  - later turns: B ≈ C ≈ D >> A
+  - early turns: D >= B > A > C
+
+  About the huge MBS values
+
+  1500%, 1100%, 1600% are mathematically correct but not very interpretable because the stateless baseline at turn 2 is only 1/30. With such a tiny denominator,
+  relative improvement explodes.
+
+  For the paper, report both:
+
+  - raw accuracy
+  - absolute gain in points
+
+  Example for turn 2:
+
+  - A: 3.3%
+  - B: 53.3%
+  - C: 40.0%
+  - D: 56.7%
+
+  That is easier to defend than only quoting 1500%+.
+
+  Practical takeaway
+
+  You now have pilot evidence for:
+
+  - the existence of a memory benefit
+  - a strong turn-depth effect
+  - working memory being the main contributor on this slice
+
+  What I would do next:
+
+  1. Save this as the main pilot result.
+  2. Run error analysis on B vs C for turns 1-2 to understand why episodic retrieval underperforms working memory.
+  3. Improve summary reporting so results include correct/total, not just accuracy and MBS.
+  4. Then decide whether to scale this same tiers 2 3 / 30 sessions slice across more sessions before attempting the full corpus.
+
+  If you want, I can next patch the summary output so it writes:
+
+  - correct
+  - total
+  - accuracy
+  - absolute_gain_vs_A
+  - mbs_vs_stateless
+    grouped by turn number, tier, and source.
+
