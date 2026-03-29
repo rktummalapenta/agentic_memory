@@ -1,0 +1,26 @@
+{
+  "northwind": [
+    {
+      "note": "Orders joins to [Order Details] by OrderID and to Customers by CustomerID"
+    },
+    {
+      "note": "Sales totals come from UnitPrice * Quantity * (1 - Discount) on [Order Details]"
+    }
+  ],
+  "sec_edgar": [
+    {
+      "note": "annual_financials contains ticker, fiscal_year, metric, and value_billions"
+    },
+    {
+      "note": "revenue is stored as metric='revenue' and year comparisons use fiscal_year"
+    }
+  ],
+  "bird": [
+    {
+      "note": "loan joins to account by account_id; account joins client through disp where type='OWNER'"
+    },
+    {
+      "note": "district.A3 stores the region name, and loan.status uses the raw BIRD codes A, B, C, D"
+    }
+  ]
+}
