@@ -1,0 +1,402 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{Memory Benefit and Memory Scaling Efficiency for Enterprise Text-to-SQL Agents}
+\author{
+  Author Name \\
+  Affiliation \\
+  \texttt{email@example.com}
+}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Memory is widely treated as a necessary component of production AI agents, but the actual benefit and required memory footprint are often unclear. We evaluate memory-augmented agents on a multi-turn enterprise-oriented Text-to-SQL benchmark spanning Northwind, SEC EDGAR, and BIRD under four conditions: stateless, working memory only, working plus episodic memory, and a full stack including semantic hints. We then study memory scaling by varying working-memory window size and retrieval depth. Across exploratory, confirmatory, and final reduced runs, memory increases accuracy from roughly 16\% to 17\% in the stateless condition to roughly 77\% to 80\% in memory-enabled conditions on multi-turn tasks. The most practically important finding is that more memory is not monotonically better: in the final reduced 120-session run, a small working-memory configuration achieves the best overall accuracy at 79.5\% and the best memory-scaling efficiency, outperforming heavier memory settings. At the same time, deeper memory becomes more competitive on the longest turn bands, suggesting a session-depth interaction rather than a universal winner. Exact paired tests show that all memory-enabled conditions significantly outperform the stateless baseline, while differences among the top memory-enabled conditions are not statistically significant at 0.05. A targeted error comparison further suggests that larger memory windows often degrade performance through context dilution, stale carryover, and answer-shape errors such as returning extra columns or the wrong granularity. These findings suggest that Text-to-SQL memory should be sized selectively rather than maximized by default.
+\end{abstract}
+
+\section{Introduction}
+Enterprise Text-to-SQL systems are often evaluated as though each request is independent. In actual usage, however, users ask follow-up questions, refine filters, change aggregation levels, and revisit earlier analytical context. This turns memory from a prompt-engineering convenience into a systems design question.
+
+The problem is that memory is usually discussed too broadly. Teams are often told that memory helps, but not where it helps, which memory layer provides the lift, or whether larger memory settings are actually worth the complexity. Those gaps matter for enterprise deployment because every additional memory layer increases retrieval cost, prompt size, and operational complexity.
+
+This paper studies those questions in multi-turn enterprise Text-to-SQL. We compare stateless execution with working memory, episodic retrieval, and semantic hints. We also study memory scaling by varying working-memory window size and retrieval depth. The key result is not only that memory helps. The stronger result is that selective memory helps, while heavier memory is not automatically better.
+
+Our main contributions are:
+\begin{enumerate}[leftmargin=1.5em]
+  \item a controlled benchmark framing for memory benefit in multi-turn enterprise Text-to-SQL;
+  \item an empirical comparison of stateless, working-memory, episodic, and semantic memory conditions;
+  \item a memory-scaling analysis showing that larger memory is not monotonically better; and
+  \item practical deployment guidance: a small working-memory configuration is the strongest current operating point, with deeper retrieval used selectively rather than by default.
+\end{enumerate}
+
+\section{Research Questions}
+This paper addresses two questions:
+\begin{enumerate}[leftmargin=1.5em]
+  \item Does memory materially improve multi-turn enterprise Text-to-SQL accuracy?
+  \item If memory helps, how much memory is enough before returns flatten or decline?
+\end{enumerate}
+
+\section{Benchmark and Experimental Setup}
+\subsection{Task Domain}
+The benchmark is focused on multi-turn enterprise-oriented Text-to-SQL across three sources. The evaluation setting follows the broader Text-to-SQL benchmark lineage from Spider to conversational settings such as SParC and CoSQL, and to larger realistic evaluations such as BIRD \cite{yu2018spider,yu2019sparc,yu2019cosql,li2023bird}.
+\par
+The three sources used here are:
+\begin{itemize}[leftmargin=1.5em]
+  \item Northwind
+  \item SEC EDGAR
+  \item BIRD
+\end{itemize}
+
+The sessions include both single-turn and multi-turn tasks, allowing the benchmark to separate control behavior from stateful follow-up reasoning.
+
+We use ``enterprise-oriented'' deliberately rather than claiming that every source is a proprietary enterprise production dataset. SEC EDGAR is real financial data, Northwind is a canonical business database, and BIRD is a large academic benchmark with enterprise-relevant analytical behavior. The paper's claim is therefore about enterprise-oriented Text-to-SQL workflows rather than about one proprietary enterprise corpus.
+
+\subsection{Memory Conditions}
+We evaluate four memory conditions:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{A}: stateless baseline
+  \item \textbf{B}: working memory only
+  \item \textbf{C}: working memory plus episodic retrieval
+  \item \textbf{D}: working memory plus episodic retrieval plus semantic hints
+\end{itemize}
+
+For scaling analysis, we vary:
+\begin{itemize}[leftmargin=1.5em]
+  \item working-memory window size
+  \item episodic retrieval top-k
+  \item semantic retrieval top-k
+\end{itemize}
+
+\subsection{Run Set Used In This Paper}
+The evidence base includes:
+\begin{itemize}[leftmargin=1.5em]
+  \item exploratory run: tiers 1--3, 36 sessions
+  \item confirmatory run: tiers 1--3, 60 sessions
+  \item final reduced inferential run: tiers 1--3, 120 sessions
+\end{itemize}
+
+The final inferential bundle compares:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{A}
+  \item \textbf{B wm2}
+  \item \textbf{C ep3}
+  \item \textbf{D sem1}
+\end{itemize}
+
+\section{Positioning Relative To Prior Work}
+This paper is positioned at the intersection of conversational Text-to-SQL, memory-augmented agents, and retrieval-augmented generation. Its contribution is narrower than a general memory-for-agents paper and more operational than a pure semantic parsing paper.
+
+The closest bodies of prior work are:
+\begin{itemize}[leftmargin=1.5em]
+  \item conversational and multi-turn Text-to-SQL \cite{yu2019sparc,yu2019cosql,liu2022cqrsql};
+  \item retrieval-augmented prompting and agent memory \cite{lewis2020rag,mem0};
+  \item enterprise or realistic benchmark construction for analytical workflows.
+\end{itemize}
+
+The specific gap addressed here is that prior memory discussions often treat memory as universally beneficial without quantifying where it helps, which layer provides the gain, or whether larger memory settings degrade performance. Prior conversational Text-to-SQL work has focused on context handling and reformulation \cite{yu2019sparc,yu2019cosql,liu2022cqrsql}, while broader retrieval and memory work has focused on knowledge access or long-term agent state \cite{lewis2020rag,mem0}. This paper addresses the missing middle: memory benefit and memory sizing for enterprise multi-turn Text-to-SQL.
+
+\section{Methods}
+\subsection{Primary Metrics}
+The primary metric is exact task correctness as recorded in the saved experiment result bundles. We report absolute accuracy and absolute gain over the stateless baseline.
+
+\subsection{Correctness Evaluation}
+Correctness is defined by execution-based result equivalence rather than string-level SQL match. For each example, the evaluator executes both the ground-truth SQL and the generated SQL against the source database. A prediction is counted as correct only if:
+\begin{itemize}[leftmargin=1.5em]
+  \item the ground-truth query executes successfully;
+  \item the generated query executes successfully; and
+  \item the normalized result rows are exactly equal.
+\end{itemize}
+
+The normalization step compares sorted row tuples after converting each value to its string representation. This makes the metric strict about answer content and answer shape: returning extra columns, the wrong granularity, or the wrong aggregation result is counted as incorrect even if part of the answer overlaps with the target.
+
+\subsection{Memory Scaling Efficiency}
+We use Memory Scaling Efficiency (MSE) as a practical efficiency measure, relating accuracy gain to a first-pass proxy for memory injected into the prompt. The current proxy counts:
+\begin{itemize}[leftmargin=1.5em]
+  \item working turns injected
+  \item episodic turns injected
+  \item semantic hints injected
+\end{itemize}
+
+In this paper, higher MSE is better. Intuitively, MSE measures how much accuracy gain is obtained per unit of additional injected memory. A configuration that achieves similar accuracy with substantially less memory cost is preferred on this measure.
+
+\subsection{Statistical Analysis}
+For the final reduced 120-session bundle, we compute:
+\begin{itemize}[leftmargin=1.5em]
+  \item Wilson 95\% confidence intervals for accuracy
+  \item paired bootstrap 95\% intervals for accuracy deltas
+  \item exact McNemar tests for matched condition comparisons
+  \item Holm correction across pairwise tests
+\end{itemize}
+
+All analysis is deterministic and based on saved JSON artifacts. No LLM calls are used in the statistical stage.
+
+\subsection{Interpretation Policy}
+The paper uses the final reduced 120-session bundle as the main inferential result. Earlier 36-session and 60-session runs are treated as replication and stability evidence rather than exact configuration replications. This keeps the statistical claims tied to one matched-turn comparison set rather than mixing exploratory and confirmatory phases, while also acknowledging that the final reduced run uses tuned settings (`B wm2`, `C ep3`, `D sem1`) rather than the earlier default E0 settings.
+
+\section{Results}
+\subsection{Overall Accuracy}
+Table~\ref{tab:overall} shows the main result. Memory changes performance from failure-level to usable-level on multi-turn enterprise Text-to-SQL.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrr}
+\toprule
+Condition & Correct & Total & Accuracy & 95\% CI \\
+\midrule
+A & 95 & 580 & 16.4\% & [13.6, 19.6] \\
+B wm2 & 461 & 580 & 79.5\% & [76.0, 82.6] \\
+C ep3 & 449 & 580 & 77.4\% & [73.8, 80.6] \\
+D sem1 & 447 & 580 & 77.1\% & [73.5, 80.3] \\
+\bottomrule
+\end{tabular}
+\caption{Overall accuracy on the final reduced 120-session run. Confidence intervals are Wilson 95\% intervals.}
+\label{tab:overall}
+\end{table}
+
+\subsection{Tier-Level Behavior}
+The benchmark cleanly separates simple controls from stateful multi-turn work. Tier 1 is effectively solved by all conditions, while Tier 2 and Tier 3 show the real memory effect.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lccc}
+\toprule
+Condition & Tier 1 & Tier 2 & Tier 3 \\
+\midrule
+A & 100.0\% & 15.6\% & 7.9\% \\
+B wm2 & 100.0\% & 81.2\% & 76.6\% \\
+C ep3 & 100.0\% & 79.4\% & 74.2\% \\
+D sem1 & 100.0\% & 74.4\% & 75.8\% \\
+\bottomrule
+\end{tabular}
+\caption{Tier-level accuracy in the final reduced 120-session run.}
+\label{tab:tier}
+\end{table}
+
+Tier 1 should be interpreted as a control with a ceiling effect, not as proof that memory is irrelevant for every simple query. In this slice, the Tier 1 tasks are sufficiently easy that all conditions saturate. The value of the tiered design is therefore not that Tier 1 proves memory has no role, but that it isolates where the memory effect becomes visible.
+
+\subsection{Dataset-Level Behavior}
+Table~\ref{tab:source} shows that the best condition varies by source, which argues against claiming a universal winning stack.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lccc}
+\toprule
+Source & B wm2 & C ep3 & D sem1 \\
+\midrule
+bird & 69.0\% & 66.0\% & 60.5\% \\
+northwind & 78.8\% & 80.4\% & 78.3\% \\
+sec\_edgar & 91.1\% & 86.4\% & 93.2\% \\
+\bottomrule
+\end{tabular}
+\caption{Best-performing memory condition varies by source in the final reduced 120-session run.}
+\label{tab:source}
+\end{table}
+
+\subsection{Pairwise Statistical Results}
+All memory-enabled conditions significantly outperform the stateless baseline. Differences among the top memory-enabled conditions are directionally meaningful but not statistically significant at 0.05 after correction.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrr}
+\toprule
+Comparison & Delta Accuracy & McNemar p & Holm-adjusted p \\
+\midrule
+A vs B wm2 & -63.1 pts & $<$0.000001 & $<$0.000001 \\
+A vs C ep3 & -61.0 pts & $<$0.000001 & $<$0.000001 \\
+A vs D sem1 & -60.7 pts & $<$0.000001 & $<$0.000001 \\
+B wm2 vs C ep3 & +2.1 pts & 0.1619 & 0.3588 \\
+B wm2 vs D sem1 & +2.4 pts & 0.1196 & 0.3588 \\
+C ep3 vs D sem1 & +0.3 pts & 0.8974 & 0.8974 \\
+\bottomrule
+\end{tabular}
+\caption{Pairwise matched-turn significance tests for the final reduced run.}
+\label{tab:pairwise}
+\end{table}
+
+The recommendation to use \textbf{B wm2} as the current default is therefore a practical recommendation, not a claim of statistically proven dominance over all other memory-enabled variants. That recommendation is based on the combination of highest observed overall accuracy, highest MSE, lowest proxy memory cost among the top-performing configurations, and lower implementation complexity relative to deeper retrieval stacks.
+
+\subsection{Memory Scaling}
+The scaling result is one of the most practically useful findings in the paper. Larger memory settings do not monotonically improve performance.
+
+Key evidence across the reduced sweeps:
+\begin{itemize}[leftmargin=1.5em]
+  \item B wm2: 79.5\%
+  \item B wm5: 71.0\%
+  \item B wm10: 73.3\%
+  \item C ep3: 77.4\%
+  \item C ep10: 72.8\%
+  \item D sem1: 77.1\%
+  \item D sem4: 74.4\%
+\end{itemize}
+
+\subsection{Efficiency}
+Table~\ref{tab:mse} shows the efficiency ranking on the final reduced set.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrr}
+\toprule
+Condition & Accuracy & Avg Proxy Cost & MSE \\
+\midrule
+B wm2 & 79.5\% & 1.45 & 0.435714 \\
+C ep3 & 77.4\% & 4.62 & 0.132090 \\
+D sem1 & 77.1\% & 5.62 & 0.107975 \\
+\bottomrule
+\end{tabular}
+\caption{Final reduced E0.5 efficiency ranking.}
+\label{tab:mse}
+\end{table}
+
+\subsection{Dataset Variation}
+The best condition varies by dataset:
+\begin{itemize}[leftmargin=1.5em]
+  \item bird: B
+  \item northwind: C
+  \item sec\_edgar: D
+\end{itemize}
+
+This supports a narrower and more defensible claim: deeper memory layers can help in domain-specific ways, but they are not the universal best default.
+
+These dataset-level patterns should be treated cautiously. Although the overall effect sizes are large and stable, the per-source and per-tier cells are still relatively small in the final reduced slice. The source-wise rankings are therefore better interpreted as heterogeneity evidence than as a final domain-ranking result.
+
+The stateless baseline is also not equally difficult across sources. In the final reduced run, stateless accuracy is 9.0\% on BIRD, 14.3\% on Northwind, and 26.2\% on SEC EDGAR. This suggests that SEC EDGAR contains a larger fraction of queries that remain partially solvable without conversational memory, likely because more tasks reduce to direct aggregate or comparison queries once the schema grounding is understood. We therefore interpret source-level memory gains relative to each source's own baseline difficulty rather than assuming identical raw difficulty across datasets.
+
+\subsection{Turn-Band View}
+For short follow-up chains, which match the intended product use case, the results are:
+\begin{itemize}[leftmargin=1.5em]
+  \item A: 25.0\%
+  \item B: 79.7\%
+  \item C: 78.3\%
+  \item D: 78.1\%
+\end{itemize}
+
+This suggests that a small working-memory configuration is the strongest current default for enterprise Text-to-SQL sessions with a few follow-up questions.
+
+The higher stateless score in the 1--4 turn band than in the overall aggregate is expected because this band includes turn 1 and the easier control-like portion of many sessions. It does not contradict the broader stateless weakness on deeper conversational chains.
+
+At the longest turn band, however, the story becomes more nuanced. In the aggregate 8--10 band, `D sem1` reaches 90.0\% versus 81.0\% for `B wm2`. This should be treated cautiously because the sample is smaller than the early turn bands, but it suggests that deeper memory may become more valuable on long analytical chains even if it is not the best overall default. The per-source breakdown is also informative: on the 8--10 band, BIRD favors both `C` and `D` strongly, Northwind is effectively tied across memory conditions, and SEC EDGAR slightly favors `D`. This supports a more actionable recommendation than ``always use B'': use `B wm2` as the default for typical short sessions, and consider deeper retrieval stacks for long, state-heavy analytical chains.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lccc}
+\toprule
+Condition & Turns 1--4 & Turns 5--7 & Turns 8--10 \\
+\midrule
+A & 25.0\% & 2.5\% & 2.0\% \\
+B wm2 & 79.7\% & 77.5\% & 81.0\% \\
+C ep3 & 78.3\% & 69.2\% & 84.0\% \\
+D sem1 & 78.1\% & 63.3\% & 90.0\% \\
+\bottomrule
+\end{tabular}
+\caption{Accuracy by turn band in the final reduced 120-session run.}
+\label{tab:turnband}
+\end{table}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.72\textwidth]{figures/overall_accuracy.png}
+  \caption{Overall accuracy by condition for the final reduced 120-session run.}
+  \label{fig:overall}
+\end{figure}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.72\textwidth]{figures/accuracy_by_tier.png}
+  \caption{Accuracy by tier for the final reduced 120-session run.}
+  \label{fig:tier}
+\end{figure}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.72\textwidth]{figures/accuracy_by_source.png}
+  \caption{Accuracy by source for the final reduced 120-session run.}
+  \label{fig:source}
+\end{figure}
+
+\section{Discussion}
+The main result is not merely that memory helps. The stronger result is that selective memory helps, while heavier memory is not automatically better.
+
+Working memory appears to provide most of the useful lift. Episodic retrieval can help when additional recall is needed, but high retrieval depth is not justified by the current results. Semantic hints can help in domain-specific settings, particularly SEC EDGAR, but the full stack is not the overall winner.
+
+For enterprise Text-to-SQL design, the practical implication is straightforward: teams should not default to maximal memory windows or broad retrieval injection. They should begin with a lightweight working-memory configuration and add retrieval selectively only when the product behavior actually needs it.
+
+\subsection{Failure Modes}
+The remaining dominant failure class is semantic mismatch rather than pure syntax failure. In other words, memory appears to fix continuity and follow-up reasoning more than it fixes every SQL-generation error mode. This matters for system design: adding more memory alone is unlikely to solve all remaining errors. Better semantic grounding and answer-shape control remain necessary.
+
+A targeted comparison of smaller and larger working-memory settings provides a first mechanistic explanation for the scaling degradation result. When \textbf{wm2} beats larger windows such as \textbf{wm5} or \textbf{wm10}, the losing larger-window cases are dominated by semantic mismatches, answer-shape errors such as returning extra columns, and wrong-granularity outputs. These failures occur disproportionately in later turns and suggest a plausible mechanism: larger windows inject older or less relevant conversational material, which increases context dilution and stale carryover. The model then preserves too much prior structure, producing over-specified or mis-scoped answers instead of the minimal answer required by the current turn. This is especially visible in examples where larger-window variants return full record rows or extra aggregate columns while the smaller-window variant returns the minimal scalar answer required by the question.
+
+\subsection{Why The Working-Memory Result Matters}
+The strongest current operating point is a small working-memory setup, not the heaviest stack. This is practically important because it means teams may be able to capture most of the gain without paying the highest retrieval and prompt-complexity costs. Even though the pairwise comparisons among the top memory conditions are not statistically significant, the working-memory condition is the best current default because it leads on both accuracy and efficiency. The turn-band analysis qualifies this recommendation rather than overturning it: `B wm2` is the best default for short-to-moderate sessions, while `D sem1` becomes more attractive on the longest chains.
+
+\section{Claims and Limitations}
+The paper supports the following claims:
+\begin{enumerate}[leftmargin=1.5em]
+  \item Memory materially improves multi-turn enterprise Text-to-SQL accuracy.
+  \item The benefit is concentrated in multi-turn follow-up tasks rather than single-turn controls.
+  \item Working memory provides most of the gain.
+  \item Selective retrieval can help, but larger memory is not monotonically better.
+  \item The best current operating point is small working memory with optional selective retrieval.
+\end{enumerate}
+
+The paper should not claim:
+\begin{itemize}[leftmargin=1.5em]
+  \item one universal winning memory stack
+  \item semantic memory as the best default in general
+  \item generalization beyond Text-to-SQL without additional experiments
+  \item a fully solved universal memory optimum
+\end{itemize}
+
+Current limitations:
+\begin{itemize}[leftmargin=1.5em]
+  \item the evidence is from one model family, gpt-5-mini
+  \item the main inferential result is based on the reduced 120-session set rather than a full large-grid sweep
+  \item the overall accuracy is dominated by Tier 3 because the final reduced bundle contains 40 Tier 1 turns, 160 Tier 2 turns, and 380 Tier 3 turns
+  \item the proxy memory-cost metric is useful for relative comparison, but not yet a full latency or dollar-cost model
+  \item the findings are scoped to enterprise multi-turn Text-to-SQL
+  \item the dataset-level cells are relatively small, so source-specific rankings should be treated as directional rather than final
+  \item the scaling degradation finding may depend in part on how this particular model family handles longer or noisier context
+\end{itemize}
+
+\section{Conclusion}
+This paper shows that memory materially improves multi-turn enterprise Text-to-SQL, but also that more memory is not automatically better. The best current operating point is a small working-memory configuration, with deeper retrieval added selectively rather than by default. This is a more useful result than the generic claim that memory helps, because it directly informs enterprise system design. The broader implication is that memory should be treated as a controllable infrastructure parameter, not a maximization target.
+
+\section{Reproducibility}
+The paper workspace includes exact staged result bundles, statistical outputs, the analysis script used to compute the inferential tables, the shell script used to run the final reduced experiment set, and a hashed artifact manifest. These materials are staged in the repository under \texttt{papers/paper1}.
+
+\appendix
+
+\section{Artifact Availability}
+The repository contains a dedicated paper workspace under \texttt{papers/paper1} with:
+\begin{itemize}[leftmargin=1.5em]
+  \item the manuscript draft;
+  \item the staged raw result bundles;
+  \item the staged statistical outputs;
+  \item the provenance notes;
+  \item and a SHA-256 artifact manifest.
+\end{itemize}
+
+\section{Notes For Final Submission}
+Before final arXiv submission, the draft still needs:
+\begin{itemize}[leftmargin=1.5em]
+  \item real author names and affiliations;
+  \item a related-work section populated with actual citations;
+  \item final figure and caption review;
+  \item and a final pass for wording and formatting.
+\end{itemize}
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}

@@ -1,0 +1,19 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: agentic_redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: agentic_chromadb
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    volumes:
+      - chroma_data:/chroma/chroma
+
+volumes:
+  chroma_data:

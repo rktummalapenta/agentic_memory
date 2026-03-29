@@ -1,0 +1,37 @@
+{
+  "source": "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json",
+  "tickers_loaded": [
+    "AAPL",
+    "MSFT",
+    "JPM",
+    "NVDA",
+    "GOOGL",
+    "AMZN",
+    "META",
+    "TSLA",
+    "V",
+    "XOM",
+    "UNH",
+    "WMT",
+    "JNJ",
+    "PG",
+    "MA",
+    "HD",
+    "BAC",
+    "KO",
+    "PFE",
+    "CSCO"
+  ],
+  "skipped_tickers": [],
+  "annual_row_count": 1897,
+  "quarterly_row_count": 5599,
+  "metrics": [
+    "cash",
+    "eps",
+    "net_income",
+    "operating_income",
+    "revenue",
+    "total_assets",
+    "total_liabilities"
+  ]
+}

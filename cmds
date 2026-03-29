@@ -1,0 +1,19 @@
+docker run -d --name agentic_redis \
+  -p 6379:6379 \
+  redis:7-alpine
+
+ docker run -d --name agentic_chromadb \
+   -p 8000:8000 \
+   chromadb/chroma:latest
+
+
+  export PATH="$PATH:/Applications/Docker.app/Contents/Resources/bin"
+
+  echo 'export PATH="$PATH:/Applications/Docker.app/Contents/Resources/bin"' >> ~/.zshrc
+  source ~/.zshrc
+
+  docker exec agentic_redis redis-cli ping
+
+   echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
+
+

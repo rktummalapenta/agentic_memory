@@ -1,0 +1,37 @@
+source,turn_band,condition,label,correct,total,accuracy
+bird,1-4,A,A,15,126,0.119048
+bird,1-4,B,B wm2,84,126,0.666667
+bird,1-4,C,C ep3,78,126,0.619048
+bird,1-4,D,D sem1,77,126,0.611111
+bird,5-7,A,A,2,42,0.047619
+bird,5-7,B,B wm2,30,42,0.714286
+bird,5-7,C,C ep3,22,42,0.52381
+bird,5-7,D,D sem1,12,42,0.285714
+bird,8-10,A,A,1,32,0.03125
+bird,8-10,B,B wm2,24,32,0.75
+bird,8-10,C,C ep3,32,32,1.0
+bird,8-10,D,D sem1,32,32,1.0
+northwind,1-4,A,A,27,117,0.230769
+northwind,1-4,B,B wm2,96,117,0.820513
+northwind,1-4,C,C ep3,99,117,0.846154
+northwind,1-4,D,D sem1,95,117,0.811966
+northwind,5-7,A,A,0,39,0.0
+northwind,5-7,B,B wm2,27,39,0.692308
+northwind,5-7,C,C ep3,27,39,0.692308
+northwind,5-7,D,D sem1,27,39,0.692308
+northwind,8-10,A,A,0,33,0.0
+northwind,8-10,B,B wm2,26,33,0.787879
+northwind,8-10,C,C ep3,26,33,0.787879
+northwind,8-10,D,D sem1,26,33,0.787879
+sec_edgar,1-4,A,A,48,117,0.410256
+sec_edgar,1-4,B,B wm2,107,117,0.91453
+sec_edgar,1-4,C,C ep3,105,117,0.897436
+sec_edgar,1-4,D,D sem1,109,117,0.931624
+sec_edgar,5-7,A,A,1,39,0.025641
+sec_edgar,5-7,B,B wm2,36,39,0.923077
+sec_edgar,5-7,C,C ep3,34,39,0.871795
+sec_edgar,5-7,D,D sem1,37,39,0.948718
+sec_edgar,8-10,A,A,1,35,0.028571
+sec_edgar,8-10,B,B wm2,31,35,0.885714
+sec_edgar,8-10,C,C ep3,26,35,0.742857
+sec_edgar,8-10,D,D sem1,32,35,0.914286

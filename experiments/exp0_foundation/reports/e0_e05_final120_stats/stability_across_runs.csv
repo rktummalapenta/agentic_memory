@@ -1,0 +1,9 @@
+run_label,condition,accuracy,correct,total
+summary_20260316T004222Z_conds-A-B-C-D_tiers-1-2-3_sessions-36_model-gpt-5-mini_wm-5_epk-3_semk-2_e0_small_t123_s36,A,0.1722,31,180
+summary_20260316T004222Z_conds-A-B-C-D_tiers-1-2-3_sessions-36_model-gpt-5-mini_wm-5_epk-3_semk-2_e0_small_t123_s36,B,0.7278,131,180
+summary_20260316T004222Z_conds-A-B-C-D_tiers-1-2-3_sessions-36_model-gpt-5-mini_wm-5_epk-3_semk-2_e0_small_t123_s36,C,0.7444,134,180
+summary_20260316T004222Z_conds-A-B-C-D_tiers-1-2-3_sessions-36_model-gpt-5-mini_wm-5_epk-3_semk-2_e0_small_t123_s36,D,0.7556,136,180
+summary_20260316T035101Z_conds-A-B-C-D_tiers-1-2-3_sessions-60_model-gpt-5-mini_wm-5_epk-3_semk-2_e0_confirm60_t123_s60,A,0.1684,50,297
+summary_20260316T035101Z_conds-A-B-C-D_tiers-1-2-3_sessions-60_model-gpt-5-mini_wm-5_epk-3_semk-2_e0_confirm60_t123_s60,B,0.7609,226,297
+summary_20260316T035101Z_conds-A-B-C-D_tiers-1-2-3_sessions-60_model-gpt-5-mini_wm-5_epk-3_semk-2_e0_confirm60_t123_s60,C,0.7643,227,297
+summary_20260316T035101Z_conds-A-B-C-D_tiers-1-2-3_sessions-60_model-gpt-5-mini_wm-5_epk-3_semk-2_e0_confirm60_t123_s60,D,0.7273,216,297

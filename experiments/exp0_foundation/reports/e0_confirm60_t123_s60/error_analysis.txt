@@ -1,0 +1,1898 @@
+# B vs C
+Condition A
+  total turns: 297
+  correct: 50
+  incorrect: 247
+  sources: {'bird': 102, 'northwind': 105, 'sec_edgar': 90}
+  tiers: {1: 20, 2: 80, 3: 197}
+  turn_numbers: {1: 60, 2: 40, 3: 40, 4: 40, 5: 20, 6: 20, 7: 20, 8: 20, 9: 20, 10: 17}
+  failure_labels: {'other_semantic_mismatch': 199, 'sql_error': 40, 'returns_order_level_rows': 21, 'empty_result': 1, 'uses_company_name_instead_of_customer_id': 7, 'wrong_granularity': 7}
+
+  - BIRD-2-001 | turn 1 | source=bird
+    question: List south Moravia status C loans.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 81 rows; first_row=(5044, 344, '1994-12-21', 100980, 60, 1683.0, 'C')
+    generated_sql: SELECT loan.loan_id, loan.account_id, loan.date, loan.amount, loan.duration, loan.payments, loan.status
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'south Moravia' AND loan.status = 'C';
+    ground_truth_sql: SELECT l.loan_id, l.amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id WHERE d.A3 = 'south Moravia' AND l.status = 'C' ORDER BY l.loan_id
+
+  - BIRD-2-001 | turn 2 | source=bird
+    question: Count them.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(682,)
+    generated_sql: SELECT COUNT(*) FROM loan;
+    ground_truth_sql: SELECT COUNT(*) AS loan_count FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'south Moravia' AND l.status = 'C'
+
+  - BIRD-2-001 | turn 3 | source=bird
+    question: What is the total amount there?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(103261740,)
+    generated_sql: SELECT SUM(amount) FROM loan;
+    ground_truth_sql: SELECT SUM(l.amount) AS total_amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'south Moravia' AND l.status = 'C'
+
+  - BIRD-3-001 | turn 1 | source=bird
+    question: List south Moravia region loans.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 133 rows; first_row=(5002, 173, '1994-05-31', 104808, 12, 8734.0, 'A')
+    generated_sql: SELECT loan.loan_id, loan.account_id, loan.date, loan.amount, loan.duration, loan.payments, loan.status
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'south Moravia';
+    ground_truth_sql: SELECT l.loan_id, l.amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id WHERE d.A3 = 'south Moravia' ORDER BY l.loan_id
+
+  - BIRD-3-001 | turn 2 | source=bird
+    question: Now only the status C ones.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 8 rows; first_row=('south Moravia', 81)
+    generated_sql: SELECT d.A3 AS region, COUNT(*) AS loans_count
+FROM loan l
+JOIN account a ON l.account_id = a.account_id
+JOIN disp dp ON a.account_id = dp.account_id AND dp.type = 'OWNER'
+JOIN client c ON dp.client_id = c.client_id
+JOIN district d ON c.district_id = d.district_id
+WHERE l.status = 'C'
+GROUP BY d.A3
+ORDER BY loans_count DESC;
+    ground_truth_sql: SELECT l.loan_id, l.amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id WHERE d.A3 = 'south Moravia' AND l.status = 'C' ORDER BY l.loan_id
+
+  - BIRD-3-001 | turn 3 | source=bird
+    question: Count them.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(682,)
+    generated_sql: SELECT COUNT(*) FROM loan;
+    ground_truth_sql: SELECT COUNT(*) AS loan_count FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'south Moravia' AND l.status = 'C'
+
+  - BIRD-3-001 | turn 4 | source=bird
+    question: What is the total amount there?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(103261740,)
+    generated_sql: SELECT SUM(amount) FROM loan;
+    ground_truth_sql: SELECT SUM(l.amount) AS total_amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'south Moravia' AND l.status = 'C'
+
+  - BIRD-3-001 | turn 6 | source=bird
+    question: What is the smallest loan there?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(4980,)
+    generated_sql: SELECT MIN(amount) FROM loan;
+    ground_truth_sql: SELECT MIN(l.amount) AS min_amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'south Moravia' AND l.status = 'C'
+
+  - BIRD-3-001 | turn 7 | source=bird
+    question: What is the average loan amount there?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(151410.1759530792,)
+    generated_sql: SELECT AVG(amount) FROM loan;
+    ground_truth_sql: SELECT ROUND(AVG(l.amount), 2) AS avg_amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'south Moravia' AND l.status = 'C'
+
+  - BIRD-3-001 | turn 9 | source=bird
+    question: Go back to the original region and show the full loan count.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(0,)
+    generated_sql: SELECT COUNT(*) FROM loan l JOIN account a ON l.account_id = a.account_id JOIN disp d ON d.account_id = a.account_id AND d.type = 'OWNER' JOIN client c ON d.client_id = c.client_id JOIN district dist ON c.district_id = dist.district_id WHERE dist.A3 = 'ORIGINAL';
+    ground_truth_sql: SELECT COUNT(*) AS loan_count FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'south Moravia'
+
+Condition B
+  total turns: 297
+  correct: 226
+  incorrect: 71
+  sources: {'bird': 102, 'northwind': 105, 'sec_edgar': 90}
+  tiers: {1: 20, 2: 80, 3: 197}
+  turn_numbers: {1: 60, 2: 40, 3: 40, 4: 40, 5: 20, 6: 20, 7: 20, 8: 20, 9: 20, 10: 17}
+  failure_labels: {'other_semantic_mismatch': 61, 'uses_company_name_instead_of_customer_id': 10, 'wrong_granularity': 10, 'returns_order_level_rows': 10}
+
+  - BIRD-2-001 | turn 1 | source=bird
+    question: List south Moravia status C loans.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 81 rows; first_row=(5044, 344, '1994-12-21', 100980, 60, 1683.0, 'C')
+    generated_sql: SELECT l.loan_id, l.account_id, l.date, l.amount, l.duration, l.payments, l.status
+FROM loan l
+JOIN account a ON l.account_id = a.account_id
+JOIN disp d ON d.account_id = a.account_id AND d.type = 'OWNER'
+JOIN client c ON c.client_id = d.client_id
+JOIN district di ON di.district_id = c.district_id
+WHERE di.A3 = 'south Moravia' AND l.status = 'C';
+    ground_truth_sql: SELECT l.loan_id, l.amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id WHERE d.A3 = 'south Moravia' AND l.status = 'C' ORDER BY l.loan_id
+
+  - BIRD-3-001 | turn 1 | source=bird
+    question: List south Moravia region loans.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 133 rows; first_row=(5002, 173, '1994-05-31', 104808, 12, 8734.0, 'A')
+    generated_sql: SELECT DISTINCT loan.loan_id, loan.account_id, loan.date, loan.amount, loan.duration, loan.payments, loan.status
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'south Moravia';
+    ground_truth_sql: SELECT l.loan_id, l.amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id WHERE d.A3 = 'south Moravia' ORDER BY l.loan_id
+
+  - BIRD-3-001 | turn 2 | source=bird
+    question: Now only the status C ones.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 81 rows; first_row=(5044, 344, '1994-12-21', 100980, 60, 1683.0, 'C')
+    generated_sql: SELECT DISTINCT loan.loan_id, loan.account_id, loan.date, loan.amount, loan.duration, loan.payments, loan.status
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'south Moravia' AND loan.status = 'C';
+    ground_truth_sql: SELECT l.loan_id, l.amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id WHERE d.A3 = 'south Moravia' AND l.status = 'C' ORDER BY l.loan_id
+
+  - BIRD-3-001 | turn 7 | source=bird
+    question: What is the average loan amount there?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(173382.96296296295,)
+    generated_sql: SELECT AVG(loan.amount)
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'south Moravia' AND loan.status = 'C';
+    ground_truth_sql: SELECT ROUND(AVG(l.amount), 2) AS avg_amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'south Moravia' AND l.status = 'C'
+
+  - BIRD-3-001 | turn 10 | source=bird
+    question: Use the loan table and return the number of matching rows for that region.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(133,)
+    generated_sql: SELECT COUNT(*)
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'south Moravia';
+    ground_truth_sql: SELECT COUNT(*) AS loan_count FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'south Moravia' AND l.status = 'C'
+
+  - NW-3-001 | turn 5 | source=northwind
+    question: What was the average order subtotal for that year?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(27651.2975,)
+    generated_sql: SELECT AVG(subtot.Subtotal) AS AverageOrderSubtotal
+FROM (
+  SELECT o.OrderID, SUM(od.UnitPrice * od.Quantity * (1 - od.Discount)) AS Subtotal
+  FROM Orders o
+  JOIN [Order Details] od ON o.OrderID = od.OrderID
+  WHERE o.CustomerID = 'BSBEV' AND strftime('%Y', o.OrderDate) = '2023'
+  GROUP BY o.OrderID
+) AS subtot;
+    ground_truth_sql: SELECT ROUND(AVG(order_total), 2) AS avg_order_total FROM (SELECT o.OrderID, SUM(od.UnitPrice * od.Quantity * (1 - od.Discount)) AS order_total FROM Orders o JOIN [Order Details] od ON od.OrderID = o.OrderID WHERE o.CustomerID = 'BSBEV' AND strftime('%Y', o.OrderDate) = '2023' GROUP BY o.OrderID)
+
+  - NW-3-001 | turn 10 | source=northwind
+    question: Which employee handled the most orders for that customer in that year?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(7, 'Robert King', 3)
+    generated_sql: SELECT e.EmployeeID, (e.FirstName || ' ' || e.LastName) AS EmployeeName, COUNT(*) AS OrderCount
+FROM Orders o
+JOIN Employees e ON e.EmployeeID = o.EmployeeID
+WHERE o.CustomerID = 'BSBEV' AND strftime('%Y', o.OrderDate) = '2023'
+GROUP BY e.EmployeeID
+ORDER BY OrderCount DESC
+LIMIT 1;
+    ground_truth_sql: SELECT e.LastName, e.FirstName, COUNT(*) AS order_count FROM Orders o JOIN Employees e ON e.EmployeeID = o.EmployeeID WHERE o.CustomerID = 'BSBEV' AND strftime('%Y', o.OrderDate) = '2023' GROUP BY e.EmployeeID, e.LastName, e.FirstName ORDER BY order_count DESC, e.LastName, e.FirstName LIMIT 1
+
+  - BIRD-2-002 | turn 1 | source=bird
+    question: List north Moravia status C loans.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 63 rows; first_row=(5015, 226, '1998-07-12', 109344, 12, 9112.0, 'C')
+    generated_sql: SELECT DISTINCT l.loan_id, l.account_id, l.date, l.amount, l.duration, l.payments, l.status
+FROM loan l
+JOIN account a ON l.account_id = a.account_id
+JOIN disp d ON d.account_id = a.account_id AND d.type = 'OWNER'
+JOIN client c ON d.client_id = c.client_id
+JOIN district di ON c.district_id = di.district_id
+WHERE l.status = 'C' AND di.A3 = 'north Moravia';
+    ground_truth_sql: SELECT l.loan_id, l.amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id WHERE d.A3 = 'north Moravia' AND l.status = 'C' ORDER BY l.loan_id
+
+  - BIRD-2-002 | turn 4 | source=bird
+    question: What is the largest loan there?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(6436, 7049, '1998-05-22', 495180, 60, 8253.0, 'C')
+    generated_sql: SELECT l.loan_id, l.account_id, l.date, l.amount, l.duration, l.payments, l.status
+FROM loan l
+JOIN account a ON l.account_id = a.account_id
+JOIN disp d ON d.account_id = a.account_id AND d.type = 'OWNER'
+JOIN client c ON d.client_id = c.client_id
+JOIN district di ON c.district_id = di.district_id
+WHERE l.status = 'C' AND di.A3 = 'north Moravia'
+ORDER BY l.amount DESC
+LIMIT 1;
+    ground_truth_sql: SELECT MAX(l.amount) AS max_amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'north Moravia' AND l.status = 'C'
+
+  - BIRD-3-002 | turn 1 | source=bird
+    question: List north Moravia region loans.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 117 rows; first_row=(4962, 25, '1997-12-08', 30276, 12, 2523.0, 'A')
+    generated_sql: SELECT loan.loan_id, loan.account_id, loan.date, loan.amount, loan.duration, loan.payments, loan.status
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'north Moravia';
+    ground_truth_sql: SELECT l.loan_id, l.amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id WHERE d.A3 = 'north Moravia' ORDER BY l.loan_id
+
+Condition C
+  total turns: 297
+  correct: 227
+  incorrect: 70
+  sources: {'bird': 102, 'northwind': 105, 'sec_edgar': 90}
+  tiers: {1: 20, 2: 80, 3: 197}
+  turn_numbers: {1: 60, 2: 40, 3: 40, 4: 40, 5: 20, 6: 20, 7: 20, 8: 20, 9: 20, 10: 17}
+  failure_labels: {'other_semantic_mismatch': 62, 'uses_company_name_instead_of_customer_id': 8, 'wrong_granularity': 8, 'returns_order_level_rows': 8}
+
+  - BIRD-2-001 | turn 1 | source=bird
+    question: List south Moravia status C loans.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 81 rows; first_row=(5044, 344, '1994-12-21', 100980, 60, 1683.0, 'C')
+    generated_sql: SELECT l.loan_id, l.account_id, l.date, l.amount, l.duration, l.payments, l.status
+FROM loan l
+JOIN account a ON l.account_id = a.account_id
+JOIN disp d ON d.account_id = a.account_id AND d.type = 'OWNER'
+JOIN client c ON d.client_id = c.client_id
+JOIN district di ON c.district_id = di.district_id
+WHERE l.status = 'C' AND di.A3 = 'south Moravia';
+    ground_truth_sql: SELECT l.loan_id, l.amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id WHERE d.A3 = 'south Moravia' AND l.status = 'C' ORDER BY l.loan_id
+
+  - BIRD-3-001 | turn 1 | source=bird
+    question: List south Moravia region loans.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 133 rows; first_row=(5002, 173, '1994-05-31', 104808, 12, 8734.0, 'A')
+    generated_sql: SELECT loan.loan_id, loan.account_id, loan.date, loan.amount, loan.duration, loan.payments, loan.status
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'south Moravia';
+    ground_truth_sql: SELECT l.loan_id, l.amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id WHERE d.A3 = 'south Moravia' ORDER BY l.loan_id
+
+  - BIRD-3-001 | turn 2 | source=bird
+    question: Now only the status C ones.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 81 rows; first_row=(5044, 344, '1994-12-21', 100980, 60, 1683.0, 'C')
+    generated_sql: SELECT loan.loan_id, loan.account_id, loan.date, loan.amount, loan.duration, loan.payments, loan.status
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'south Moravia' AND loan.status = 'C';
+    ground_truth_sql: SELECT l.loan_id, l.amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id WHERE d.A3 = 'south Moravia' AND l.status = 'C' ORDER BY l.loan_id
+
+  - BIRD-3-001 | turn 5 | source=bird
+    question: What is the largest loan there?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(6534, 7542, '1997-10-19', 590820, 60, 9847.0, 'C')
+    generated_sql: SELECT loan.loan_id, loan.account_id, loan.date, loan.amount, loan.duration, loan.payments, loan.status
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'south Moravia' AND loan.status = 'C'
+ORDER BY loan.amount DESC
+LIMIT 1;
+    ground_truth_sql: SELECT MAX(l.amount) AS max_amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'south Moravia' AND l.status = 'C'
+
+  - BIRD-3-001 | turn 6 | source=bird
+    question: What is the smallest loan there?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(6688, 8268, '1997-09-26', 8616, 24, 359.0, 'C')
+    generated_sql: SELECT loan.loan_id, loan.account_id, loan.date, loan.amount, loan.duration, loan.payments, loan.status
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'south Moravia' AND loan.status = 'C'
+ORDER BY loan.amount ASC
+LIMIT 1;
+    ground_truth_sql: SELECT MIN(l.amount) AS min_amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'south Moravia' AND l.status = 'C'
+
+  - BIRD-3-001 | turn 7 | source=bird
+    question: What is the average loan amount there?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(173382.96296296295,)
+    generated_sql: SELECT AVG(loan.amount)
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'south Moravia' AND loan.status = 'C';
+    ground_truth_sql: SELECT ROUND(AVG(l.amount), 2) AS avg_amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'south Moravia' AND l.status = 'C'
+
+  - NW-2-001 | turn 1 | source=northwind
+    question: Show B's Beverages sales by year.
+    labels: uses_company_name_instead_of_customer_id, wrong_granularity, returns_order_level_rows
+    generated_error: None
+    result_summary: 12 rows; first_row=(2012, 240635.17)
+    generated_sql: SELECT CAST(strftime('%Y', Orders.OrderDate) AS INTEGER) AS Year, SUM([Order Details].UnitPrice * [Order Details].Quantity * (1 - [Order Details].Discount)) AS Sales
+FROM Orders
+JOIN Customers ON Orders.CustomerID = Customers.CustomerID
+JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+WHERE Customers.CompanyName = 'B''s Beverages' AND Orders.OrderDate IS NOT NULL
+GROUP BY CAST(strftime('%Y', Orders.OrderDate) AS INTEGER)
+ORDER BY Year;
+    ground_truth_sql: SELECT strftime('%Y', o.OrderDate) AS order_year, ROUND(SUM(od.UnitPrice * od.Quantity * (1 - od.Discount)), 2) AS sales_total FROM Orders o JOIN [Order Details] od ON od.OrderID = o.OrderID WHERE o.CustomerID = 'BSBEV' GROUP BY order_year ORDER BY order_year
+
+  - NW-2-001 | turn 2 | source=northwind
+    question: Which year was highest?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(2021,)
+    generated_sql: SELECT CAST(strftime('%Y', Orders.OrderDate) AS INTEGER) AS Year
+FROM Orders
+JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+WHERE Orders.CustomerID = 'BSBEV' AND Orders.OrderDate IS NOT NULL
+GROUP BY CAST(strftime('%Y', Orders.OrderDate) AS INTEGER)
+ORDER BY SUM([Order Details].UnitPrice * [Order Details].Quantity * (1 - [Order Details].Discount)) DESC
+LIMIT 1;
+    ground_truth_sql: SELECT strftime('%Y', o.OrderDate) AS order_year FROM Orders o JOIN [Order Details] od ON od.OrderID = o.OrderID WHERE o.CustomerID = 'BSBEV' GROUP BY order_year ORDER BY SUM(od.UnitPrice * od.Quantity * (1 - od.Discount)) DESC, order_year DESC LIMIT 1
+
+  - NW-3-001 | turn 5 | source=northwind
+    question: What was the average order subtotal for that year?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(27651.2975,)
+    generated_sql: SELECT AVG(Subtotal) AS AverageOrderSubtotal
+FROM (
+  SELECT Orders.OrderID, SUM([Order Details].UnitPrice * [Order Details].Quantity * (1 - [Order Details].Discount)) AS Subtotal
+  FROM Orders
+  JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+  WHERE Orders.CustomerID = 'BSBEV'
+    AND Orders.OrderDate BETWEEN DATETIME('2023-01-01') AND DATETIME('2023-12-31')
+  GROUP BY Orders.OrderID
+);
+    ground_truth_sql: SELECT ROUND(AVG(order_total), 2) AS avg_order_total FROM (SELECT o.OrderID, SUM(od.UnitPrice * od.Quantity * (1 - od.Discount)) AS order_total FROM Orders o JOIN [Order Details] od ON od.OrderID = o.OrderID WHERE o.CustomerID = 'BSBEV' AND strftime('%Y', o.OrderDate) = '2023' GROUP BY o.OrderID)
+
+  - NW-3-001 | turn 10 | source=northwind
+    question: Which employee handled the most orders for that customer in that year?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(7, 'Robert King', 3)
+    generated_sql: WITH counts AS (
+  SELECT EmployeeID, COUNT(*) AS OrderCount
+  FROM Orders
+  WHERE CustomerID = 'BSBEV'
+    AND OrderDate BETWEEN DATETIME('2023-01-01') AND DATETIME('2023-12-31')
+  GROUP BY EmployeeID
+)
+SELECT e.EmployeeID,
+       e.FirstName || ' ' || e.LastName AS EmployeeName,
+       c.OrderCount
+FROM counts c
+JOIN Employees e ON e.EmployeeID = c.EmployeeID
+WHERE c.OrderCount = (SELECT MAX(OrderCount) FROM counts);
+    ground_truth_sql: SELECT e.LastName, e.FirstName, COUNT(*) AS order_count FROM Orders o JOIN Employees e ON e.EmployeeID = o.EmployeeID WHERE o.CustomerID = 'BSBEV' AND strftime('%Y', o.OrderDate) = '2023' GROUP BY e.EmployeeID, e.LastName, e.FirstName ORDER BY order_count DESC, e.LastName, e.FirstName LIMIT 1
+
+Condition D
+  total turns: 297
+  correct: 216
+  incorrect: 81
+  sources: {'bird': 102, 'northwind': 105, 'sec_edgar': 90}
+  tiers: {1: 20, 2: 80, 3: 197}
+  turn_numbers: {1: 60, 2: 40, 3: 40, 4: 40, 5: 20, 6: 20, 7: 20, 8: 20, 9: 20, 10: 17}
+  failure_labels: {'other_semantic_mismatch': 71, 'uses_company_name_instead_of_customer_id': 8, 'wrong_granularity': 8, 'returns_order_level_rows': 8, 'empty_result': 2}
+
+  - BIRD-2-001 | turn 1 | source=bird
+    question: List south Moravia status C loans.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 81 rows; first_row=(5044, 344, '1994-12-21', 100980, 60, 1683.0, 'C')
+    generated_sql: SELECT DISTINCT l.loan_id, l.account_id, l.date, l.amount, l.duration, l.payments, l.status
+FROM loan l
+JOIN account a ON l.account_id = a.account_id
+JOIN disp d ON d.account_id = a.account_id AND d.type = 'OWNER'
+JOIN client c ON d.client_id = c.client_id
+JOIN district di ON c.district_id = di.district_id
+WHERE di.A3 = 'south Moravia' AND l.status = 'C';
+    ground_truth_sql: SELECT l.loan_id, l.amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id WHERE d.A3 = 'south Moravia' AND l.status = 'C' ORDER BY l.loan_id
+
+  - BIRD-2-001 | turn 4 | source=bird
+    question: What is the largest loan there?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(6534, 590820)
+    generated_sql: SELECT l.loan_id, l.amount
+FROM loan l
+JOIN account a ON l.account_id = a.account_id
+JOIN disp d ON d.account_id = a.account_id AND d.type = 'OWNER'
+JOIN client c ON d.client_id = c.client_id
+JOIN district di ON c.district_id = di.district_id
+WHERE di.A3 = 'south Moravia' AND l.status = 'C'
+ORDER BY l.amount DESC, l.loan_id ASC
+LIMIT 1;
+    ground_truth_sql: SELECT MAX(l.amount) AS max_amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'south Moravia' AND l.status = 'C'
+
+  - BIRD-3-001 | turn 1 | source=bird
+    question: List south Moravia region loans.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 133 rows; first_row=(5002, 173, '1994-05-31', 104808, 12, 8734.0, 'A')
+    generated_sql: SELECT loan.loan_id, loan.account_id, loan.date, loan.amount, loan.duration, loan.payments, loan.status
+FROM loan
+JOIN account ON account.account_id = loan.account_id
+JOIN disp ON disp.account_id = account.account_id AND disp.type = 'OWNER'
+JOIN client ON client.client_id = disp.client_id
+JOIN district ON district.district_id = client.district_id
+WHERE district.A3 = 'south Moravia';
+    ground_truth_sql: SELECT l.loan_id, l.amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id WHERE d.A3 = 'south Moravia' ORDER BY l.loan_id
+
+  - BIRD-3-001 | turn 2 | source=bird
+    question: Now only the status C ones.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 81 rows; first_row=(5044, 344, '1994-12-21', 100980, 60, 1683.0, 'C')
+    generated_sql: SELECT loan.loan_id, loan.account_id, loan.date, loan.amount, loan.duration, loan.payments, loan.status
+FROM loan
+JOIN account ON account.account_id = loan.account_id
+JOIN disp ON disp.account_id = account.account_id AND disp.type = 'OWNER'
+JOIN client ON client.client_id = disp.client_id
+JOIN district ON district.district_id = client.district_id
+WHERE district.A3 = 'south Moravia' AND loan.status = 'C';
+    ground_truth_sql: SELECT l.loan_id, l.amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id WHERE d.A3 = 'south Moravia' AND l.status = 'C' ORDER BY l.loan_id
+
+  - BIRD-3-001 | turn 7 | source=bird
+    question: What is the average loan amount there?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(173382.96296296295,)
+    generated_sql: SELECT AVG(loan.amount)
+FROM loan
+JOIN account ON account.account_id = loan.account_id
+JOIN disp ON disp.account_id = account.account_id AND disp.type = 'OWNER'
+JOIN client ON client.client_id = disp.client_id
+JOIN district ON district.district_id = client.district_id
+WHERE district.A3 = 'south Moravia' AND loan.status = 'C';
+    ground_truth_sql: SELECT ROUND(AVG(l.amount), 2) AS avg_amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'south Moravia' AND l.status = 'C'
+
+  - NW-3-001 | turn 1 | source=northwind
+    question: Show B's Beverages sales by year.
+    labels: uses_company_name_instead_of_customer_id, wrong_granularity, returns_order_level_rows
+    generated_error: None
+    result_summary: 12 rows; first_row=(2012, 240635.17)
+    generated_sql: SELECT CAST(strftime('%Y', o.OrderDate) AS INTEGER) AS Year,
+       SUM(od.UnitPrice * od.Quantity * (1 - od.Discount)) AS Sales
+FROM Orders o
+JOIN Customers c ON o.CustomerID = c.CustomerID
+JOIN [Order Details] od ON o.OrderID = od.OrderID
+WHERE c.CompanyName = 'B''s Beverages' AND o.OrderDate IS NOT NULL
+GROUP BY strftime('%Y', o.OrderDate)
+ORDER BY Year;
+    ground_truth_sql: SELECT strftime('%Y', o.OrderDate) AS order_year, ROUND(SUM(od.UnitPrice * od.Quantity * (1 - od.Discount)), 2) AS sales_total FROM Orders o JOIN [Order Details] od ON od.OrderID = o.OrderID WHERE o.CustomerID = 'BSBEV' GROUP BY order_year ORDER BY order_year
+
+  - NW-3-001 | turn 5 | source=northwind
+    question: What was the average order subtotal for that year?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(27651.2975,)
+    generated_sql: SELECT AVG(Subtotal) FROM (SELECT SUM(od.UnitPrice * od.Quantity * (1 - od.Discount)) AS Subtotal FROM Orders o JOIN [Order Details] od ON o.OrderID = od.OrderID WHERE o.CustomerID = 'BSBEV' AND strftime('%Y', o.OrderDate) = '2023' GROUP BY o.OrderID);
+    ground_truth_sql: SELECT ROUND(AVG(order_total), 2) AS avg_order_total FROM (SELECT o.OrderID, SUM(od.UnitPrice * od.Quantity * (1 - od.Discount)) AS order_total FROM Orders o JOIN [Order Details] od ON od.OrderID = o.OrderID WHERE o.CustomerID = 'BSBEV' AND strftime('%Y', o.OrderDate) = '2023' GROUP BY o.OrderID)
+
+  - NW-3-001 | turn 10 | source=northwind
+    question: Which employee handled the most orders for that customer in that year?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(7, 'Robert King', 3)
+    generated_sql: WITH counts AS (
+  SELECT EmployeeID, COUNT(*) AS cnt
+  FROM Orders
+  WHERE CustomerID = 'BSBEV'
+    AND EmployeeID IS NOT NULL
+    AND strftime('%Y', OrderDate) = '2023'
+  GROUP BY EmployeeID
+)
+SELECT e.EmployeeID,
+       e.FirstName || ' ' || e.LastName AS EmployeeName,
+       c.cnt AS OrderCount
+FROM counts c
+JOIN Employees e ON e.EmployeeID = c.EmployeeID
+WHERE c.cnt = (SELECT MAX(cnt) FROM counts);
+    ground_truth_sql: SELECT e.LastName, e.FirstName, COUNT(*) AS order_count FROM Orders o JOIN Employees e ON e.EmployeeID = o.EmployeeID WHERE o.CustomerID = 'BSBEV' AND strftime('%Y', o.OrderDate) = '2023' GROUP BY e.EmployeeID, e.LastName, e.FirstName ORDER BY order_count DESC, e.LastName, e.FirstName LIMIT 1
+
+  - BIRD-2-002 | turn 1 | source=bird
+    question: List north Moravia status C loans.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 63 rows; first_row=(5015, 226, '1998-07-12', 109344, 12, 9112.0, 'C')
+    generated_sql: SELECT loan.*
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE loan.status = 'C' AND district.A3 = 'north Moravia';
+    ground_truth_sql: SELECT l.loan_id, l.amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id WHERE d.A3 = 'north Moravia' AND l.status = 'C' ORDER BY l.loan_id
+
+  - BIRD-2-002 | turn 4 | source=bird
+    question: What is the largest loan there?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(6436, 7049, '1998-05-22', 495180, 60, 8253.0, 'C')
+    generated_sql: SELECT loan.*
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE loan.status = 'C' AND district.A3 = 'north Moravia' AND loan.amount = (
+  SELECT MAX(l2.amount)
+  FROM loan l2
+  JOIN account a2 ON l2.account_id = a2.account_id
+  JOIN disp d2 ON a2.account_id = d2.account_id AND d2.type = 'OWNER'
+  JOIN client c2 ON d2.client_id = c2.client_id
+  JOIN district dist2 ON c2.district_id = dist2.district_id
+  WHERE l2.status = 'C' AND dist2.A3 = 'north Moravia'
+);
+    ground_truth_sql: SELECT MAX(l.amount) AS max_amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'north Moravia' AND l.status = 'C'
+
+Comparison B vs C
+  B_correct_C_wrong: 14
+  C_correct_B_wrong: 15
+
+  B wins on:
+  - BIRD-3-001 | turn 5 | source=bird
+    question: What is the largest loan there?
+    B sql: SELECT MAX(loan.amount)
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'south Moravia' AND loan.status = 'C';
+    C sql: SELECT loan.loan_id, loan.account_id, loan.date, loan.amount, loan.duration, loan.payments, loan.status
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'south Moravia' AND loan.status = 'C'
+ORDER BY loan.amount DESC
+LIMIT 1;
+    C labels: other_semantic_mismatch
+
+  - BIRD-3-001 | turn 6 | source=bird
+    question: What is the smallest loan there?
+    B sql: SELECT MIN(loan.amount)
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'south Moravia' AND loan.status = 'C';
+    C sql: SELECT loan.loan_id, loan.account_id, loan.date, loan.amount, loan.duration, loan.payments, loan.status
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'south Moravia' AND loan.status = 'C'
+ORDER BY loan.amount ASC
+LIMIT 1;
+    C labels: other_semantic_mismatch
+
+  - NW-2-001 | turn 1 | source=northwind
+    question: Show B's Beverages sales by year.
+    B sql: SELECT strftime('%Y', Orders.OrderDate) AS Year, SUM([Order Details].UnitPrice * [Order Details].Quantity * (1 - [Order Details].Discount)) AS Sales
+FROM Orders
+JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+JOIN Customers ON Orders.CustomerID = Customers.CustomerID
+WHERE Customers.CompanyName = 'B''s Beverages' AND Orders.OrderDate IS NOT NULL
+GROUP BY strftime('%Y', Orders.OrderDate)
+ORDER BY strftime('%Y', Orders.OrderDate);
+    C sql: SELECT CAST(strftime('%Y', Orders.OrderDate) AS INTEGER) AS Year, SUM([Order Details].UnitPrice * [Order Details].Quantity * (1 - [Order Details].Discount)) AS Sales
+FROM Orders
+JOIN Customers ON Orders.CustomerID = Customers.CustomerID
+JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+WHERE Customers.CompanyName = 'B''s Beverages' AND Orders.OrderDate IS NOT NULL
+GROUP BY CAST(strftime('%Y', Orders.OrderDate) AS INTEGER)
+ORDER BY Year;
+    C labels: uses_company_name_instead_of_customer_id, wrong_granularity, returns_order_level_rows
+
+  - NW-2-001 | turn 2 | source=northwind
+    question: Which year was highest?
+    B sql: SELECT strftime('%Y', Orders.OrderDate) AS Year
+FROM Orders
+JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+WHERE Orders.CustomerID = 'BSBEV' AND Orders.OrderDate IS NOT NULL
+GROUP BY strftime('%Y', Orders.OrderDate)
+ORDER BY SUM([Order Details].UnitPrice * [Order Details].Quantity * (1 - [Order Details].Discount)) DESC
+LIMIT 1;
+    C sql: SELECT CAST(strftime('%Y', Orders.OrderDate) AS INTEGER) AS Year
+FROM Orders
+JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+WHERE Orders.CustomerID = 'BSBEV' AND Orders.OrderDate IS NOT NULL
+GROUP BY CAST(strftime('%Y', Orders.OrderDate) AS INTEGER)
+ORDER BY SUM([Order Details].UnitPrice * [Order Details].Quantity * (1 - [Order Details].Discount)) DESC
+LIMIT 1;
+    C labels: other_semantic_mismatch
+
+  - SEC-3-003 | turn 2 | source=sec_edgar
+    question: Which year was higher?
+    B sql: SELECT fiscal_year
+FROM annual_financials
+WHERE ticker = 'CSCO'
+  AND metric = 'revenue'
+  AND fiscal_year IN (2024, 2025)
+ORDER BY value_billions DESC
+LIMIT 1;
+    C sql: SELECT fiscal_year, value_billions
+FROM annual_financials
+WHERE ticker = 'CSCO' AND metric = 'revenue' AND fiscal_year IN (2024, 2025)
+ORDER BY value_billions DESC
+LIMIT 1;
+    C labels: other_semantic_mismatch
+
+  - SEC-3-003 | turn 4 | source=sec_edgar
+    question: Which year was higher there?
+    B sql: SELECT fiscal_year
+FROM annual_financials
+WHERE ticker = 'CSCO'
+  AND metric = 'net_income'
+  AND fiscal_year IN (2024, 2025)
+ORDER BY value_billions DESC
+LIMIT 1;
+    C sql: SELECT fiscal_year, value_billions
+FROM annual_financials
+WHERE ticker = 'CSCO' AND metric = 'net_income' AND fiscal_year IN (2024, 2025)
+ORDER BY value_billions DESC
+LIMIT 1;
+    C labels: other_semantic_mismatch
+
+  - SEC-3-003 | turn 6 | source=sec_edgar
+    question: Which year was higher there?
+    B sql: SELECT fiscal_year
+FROM annual_financials
+WHERE ticker = 'CSCO'
+  AND metric = 'cash'
+  AND fiscal_year IN (2024, 2025)
+ORDER BY value_billions DESC
+LIMIT 1;
+    C sql: SELECT fiscal_year, value_billions
+FROM annual_financials
+WHERE ticker = 'CSCO' AND metric = 'cash' AND fiscal_year IN (2024, 2025)
+ORDER BY value_billions DESC
+LIMIT 1;
+    C labels: other_semantic_mismatch
+
+  - SEC-3-003 | turn 8 | source=sec_edgar
+    question: Which year was higher there?
+    B sql: SELECT fiscal_year
+FROM annual_financials
+WHERE ticker = 'CSCO'
+  AND metric = 'total_assets'
+  AND fiscal_year IN (2024, 2025)
+ORDER BY value_billions DESC
+LIMIT 1;
+    C sql: SELECT fiscal_year, value_billions
+FROM annual_financials
+WHERE ticker = 'CSCO' AND metric = 'total_assets' AND fiscal_year IN (2024, 2025)
+ORDER BY value_billions DESC
+LIMIT 1;
+    C labels: other_semantic_mismatch
+
+  - SEC-3-003 | turn 10 | source=sec_edgar
+    question: Which year was higher there?
+    B sql: SELECT fiscal_year
+FROM annual_financials
+WHERE ticker = 'CSCO'
+  AND metric = 'total_liabilities'
+  AND fiscal_year IN (2024, 2025)
+ORDER BY value_billions DESC
+LIMIT 1;
+    C sql: SELECT fiscal_year, value_billions
+FROM annual_financials
+WHERE ticker = 'CSCO' AND metric = 'total_liabilities' AND fiscal_year IN (2024, 2025)
+ORDER BY value_billions DESC
+LIMIT 1;
+    C labels: other_semantic_mismatch
+
+  - NW-2-005 | turn 2 | source=northwind
+    question: Which year was highest?
+    B sql: SELECT strftime('%Y', Orders.OrderDate) AS Year
+FROM Orders
+JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+WHERE Orders.CustomerID = 'PRINI' AND Orders.OrderDate IS NOT NULL
+GROUP BY strftime('%Y', Orders.OrderDate)
+ORDER BY SUM([Order Details].UnitPrice * [Order Details].Quantity * (1 - [Order Details].Discount)) DESC
+LIMIT 1;
+    C sql: SELECT strftime('%Y', Orders.OrderDate) AS Year, SUM([Order Details].UnitPrice * [Order Details].Quantity * (1 - [Order Details].Discount)) AS TotalSales
+FROM Orders
+JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+WHERE Orders.CustomerID = 'PRINI' AND Orders.OrderDate IS NOT NULL
+GROUP BY strftime('%Y', Orders.OrderDate)
+ORDER BY TotalSales DESC
+LIMIT 1;
+    C labels: other_semantic_mismatch
+
+  C wins on:
+  - BIRD-3-001 | turn 10 | source=bird
+    question: Use the loan table and return the number of matching rows for that region.
+    B sql: SELECT COUNT(*)
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'south Moravia';
+    B labels: other_semantic_mismatch
+    C sql: SELECT COUNT(loan.loan_id)
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'south Moravia' AND loan.status = 'C';
+
+  - BIRD-3-002 | turn 10 | source=bird
+    question: Use the loan table and return the number of matching rows for that region.
+    B sql: SELECT COUNT(loan.loan_id)
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'north Moravia';
+    B labels: other_semantic_mismatch
+    C sql: SELECT COUNT(l.loan_id)
+FROM loan l
+JOIN account a ON a.account_id = l.account_id
+JOIN disp d ON d.account_id = a.account_id AND d.type = 'OWNER'
+JOIN client c ON c.client_id = d.client_id
+JOIN district di ON di.district_id = c.district_id
+WHERE di.A3 = 'north Moravia' AND l.status = 'C';
+
+  - NW-2-002 | turn 1 | source=northwind
+    question: Show LILA-Supermercado sales by year.
+    B sql: SELECT CAST(strftime('%Y', Orders.OrderDate) AS INTEGER) AS Year,
+       SUM([Order Details].UnitPrice * [Order Details].Quantity * (1 - [Order Details].Discount)) AS TotalSales
+FROM Orders
+JOIN Customers ON Orders.CustomerID = Customers.CustomerID
+JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+WHERE Customers.CompanyName = 'LILA-Supermercado' AND Orders.OrderDate IS NOT NULL
+GROUP BY CAST(strftime('%Y', Orders.OrderDate) AS INTEGER)
+ORDER BY Year;
+    B labels: uses_company_name_instead_of_customer_id, wrong_granularity, returns_order_level_rows
+    C sql: SELECT strftime('%Y', Orders.OrderDate) AS Year, SUM([Order Details].UnitPrice * [Order Details].Quantity * (1 - [Order Details].Discount)) AS TotalSales
+FROM Orders
+JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+JOIN Customers ON Orders.CustomerID = Customers.CustomerID
+WHERE Customers.CompanyName = 'LILA-Supermercado' AND Orders.OrderDate IS NOT NULL
+GROUP BY strftime('%Y', Orders.OrderDate)
+ORDER BY Year;
+
+  - NW-2-002 | turn 2 | source=northwind
+    question: Which year was highest?
+    B sql: SELECT CAST(strftime('%Y', Orders.OrderDate) AS INTEGER) AS Year
+FROM Orders
+JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+WHERE Orders.CustomerID = 'LILAS' AND Orders.OrderDate IS NOT NULL
+GROUP BY CAST(strftime('%Y', Orders.OrderDate) AS INTEGER)
+ORDER BY SUM([Order Details].UnitPrice * [Order Details].Quantity * (1 - [Order Details].Discount)) DESC
+LIMIT 1;
+    B labels: other_semantic_mismatch
+    C sql: SELECT strftime('%Y', Orders.OrderDate) AS Year
+FROM Orders
+JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+WHERE Orders.CustomerID = 'LILAS' AND Orders.OrderDate IS NOT NULL
+GROUP BY strftime('%Y', Orders.OrderDate)
+ORDER BY SUM([Order Details].UnitPrice * [Order Details].Quantity * (1 - [Order Details].Discount)) DESC
+LIMIT 1;
+
+  - BIRD-3-003 | turn 5 | source=bird
+    question: What is the largest loan there?
+    B sql: SELECT l.loan_id, l.account_id, l.date, l.amount, l.duration, l.payments, l.status
+FROM loan l
+JOIN account a ON l.account_id = a.account_id
+JOIN disp d ON d.account_id = a.account_id AND d.type = 'OWNER'
+JOIN client c ON d.client_id = c.client_id
+JOIN district dist ON c.district_id = dist.district_id
+WHERE dist.A3 = 'east Bohemia' AND l.status = 'C'
+ORDER BY l.amount DESC
+LIMIT 1;
+    B labels: other_semantic_mismatch
+    C sql: SELECT MAX(l.amount)
+FROM loan l
+JOIN account a ON l.account_id = a.account_id
+JOIN disp d ON d.account_id = a.account_id AND d.type = 'OWNER'
+JOIN client c ON c.client_id = d.client_id
+JOIN district dist ON c.district_id = dist.district_id
+WHERE dist.A3 = 'east Bohemia' AND l.status = 'C';
+
+  - BIRD-3-003 | turn 6 | source=bird
+    question: What is the smallest loan there?
+    B sql: SELECT l.loan_id, l.account_id, l.date, l.amount, l.duration, l.payments, l.status
+FROM loan l
+JOIN account a ON l.account_id = a.account_id
+JOIN disp d ON d.account_id = a.account_id AND d.type = 'OWNER'
+JOIN client c ON d.client_id = c.client_id
+JOIN district dist ON c.district_id = dist.district_id
+WHERE dist.A3 = 'east Bohemia' AND l.status = 'C'
+ORDER BY l.amount ASC
+LIMIT 1;
+    B labels: other_semantic_mismatch
+    C sql: SELECT MIN(l.amount)
+FROM loan l
+JOIN account a ON l.account_id = a.account_id
+JOIN disp d ON d.account_id = a.account_id AND d.type = 'OWNER'
+JOIN client c ON c.client_id = d.client_id
+JOIN district dist ON c.district_id = dist.district_id
+WHERE dist.A3 = 'east Bohemia' AND l.status = 'C';
+
+  - BIRD-3-003 | turn 9 | source=bird
+    question: Go back to the original region and show the full loan count.
+    B sql: SELECT COUNT(*) 
+FROM loan l
+JOIN account a ON l.account_id = a.account_id
+JOIN disp d ON d.account_id = a.account_id AND d.type = 'OWNER'
+JOIN client c ON d.client_id = c.client_id
+JOIN district dist ON c.district_id = dist.district_id
+WHERE dist.A3 = 'east Bohemia' AND l.status = 'C';
+    B labels: other_semantic_mismatch
+    C sql: SELECT COUNT(*) 
+FROM loan l
+JOIN account a ON l.account_id = a.account_id
+JOIN disp d ON d.account_id = a.account_id AND d.type = 'OWNER'
+JOIN client c ON c.client_id = d.client_id
+JOIN district dist ON c.district_id = dist.district_id
+WHERE dist.A3 = 'east Bohemia';
+
+  - BIRD-1-004 | turn 1 | source=bird
+    question: Count status C loans in central Bohemia.
+    B sql: SELECT COUNT(DISTINCT loan.loan_id) FROM loan JOIN account ON loan.account_id = account.account_id JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER' JOIN client ON disp.client_id = client.client_id JOIN district ON client.district_id = district.district_id WHERE loan.status = 'C' AND district.A3 = 'Central Bohemia';
+    B labels: other_semantic_mismatch
+    C sql: SELECT COUNT(DISTINCT l.loan_id) FROM loan l JOIN account a ON l.account_id = a.account_id JOIN disp d ON a.account_id = d.account_id AND d.type = 'OWNER' JOIN client c ON d.client_id = c.client_id JOIN district di ON c.district_id = di.district_id WHERE l.status = 'C' AND di.A3 = 'central Bohemia';
+
+  - BIRD-3-004 | turn 9 | source=bird
+    question: Go back to the original region and show the full loan count.
+    B sql: SELECT COUNT(DISTINCT loan.loan_id) FROM loan JOIN account ON loan.account_id = account.account_id JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER' JOIN client ON disp.client_id = client.client_id JOIN district ON client.district_id = district.district_id WHERE district.A3 = 'central Bohemia' AND loan.status = 'C';
+    B labels: other_semantic_mismatch
+    C sql: SELECT COUNT(loan.loan_id)
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON disp.account_id = account.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'central Bohemia';
+
+  - NW-2-004 | turn 2 | source=northwind
+    question: Which year was highest?
+    B sql: SELECT Year FROM (
+  SELECT CAST(strftime('%Y', Orders.OrderDate) AS INTEGER) AS Year,
+         SUM([Order Details].UnitPrice * [Order Details].Quantity * (1 - [Order Details].Discount)) AS TotalSales
+  FROM Orders
+  JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+  WHERE Orders.CustomerID = 'GOURL' AND Orders.OrderDate IS NOT NULL
+  GROUP BY strftime('%Y', Orders.OrderDate)
+  ORDER BY TotalSales DESC, Year DESC
+  LIMIT 1
+);
+    B labels: other_semantic_mismatch
+    C sql: SELECT strftime('%Y', Orders.OrderDate) AS Year
+FROM Orders
+JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+WHERE Orders.CustomerID = 'GOURL' AND Orders.OrderDate IS NOT NULL
+GROUP BY strftime('%Y', Orders.OrderDate)
+ORDER BY SUM([Order Details].UnitPrice * [Order Details].Quantity * (1 - [Order Details].Discount)) DESC
+LIMIT 1;
+
+
+# C vs D
+Condition A
+  total turns: 297
+  correct: 50
+  incorrect: 247
+  sources: {'bird': 102, 'northwind': 105, 'sec_edgar': 90}
+  tiers: {1: 20, 2: 80, 3: 197}
+  turn_numbers: {1: 60, 2: 40, 3: 40, 4: 40, 5: 20, 6: 20, 7: 20, 8: 20, 9: 20, 10: 17}
+  failure_labels: {'other_semantic_mismatch': 199, 'sql_error': 40, 'returns_order_level_rows': 21, 'empty_result': 1, 'uses_company_name_instead_of_customer_id': 7, 'wrong_granularity': 7}
+
+  - BIRD-2-001 | turn 1 | source=bird
+    question: List south Moravia status C loans.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 81 rows; first_row=(5044, 344, '1994-12-21', 100980, 60, 1683.0, 'C')
+    generated_sql: SELECT loan.loan_id, loan.account_id, loan.date, loan.amount, loan.duration, loan.payments, loan.status
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'south Moravia' AND loan.status = 'C';
+    ground_truth_sql: SELECT l.loan_id, l.amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id WHERE d.A3 = 'south Moravia' AND l.status = 'C' ORDER BY l.loan_id
+
+  - BIRD-2-001 | turn 2 | source=bird
+    question: Count them.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(682,)
+    generated_sql: SELECT COUNT(*) FROM loan;
+    ground_truth_sql: SELECT COUNT(*) AS loan_count FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'south Moravia' AND l.status = 'C'
+
+  - BIRD-2-001 | turn 3 | source=bird
+    question: What is the total amount there?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(103261740,)
+    generated_sql: SELECT SUM(amount) FROM loan;
+    ground_truth_sql: SELECT SUM(l.amount) AS total_amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'south Moravia' AND l.status = 'C'
+
+  - BIRD-3-001 | turn 1 | source=bird
+    question: List south Moravia region loans.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 133 rows; first_row=(5002, 173, '1994-05-31', 104808, 12, 8734.0, 'A')
+    generated_sql: SELECT loan.loan_id, loan.account_id, loan.date, loan.amount, loan.duration, loan.payments, loan.status
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'south Moravia';
+    ground_truth_sql: SELECT l.loan_id, l.amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id WHERE d.A3 = 'south Moravia' ORDER BY l.loan_id
+
+  - BIRD-3-001 | turn 2 | source=bird
+    question: Now only the status C ones.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 8 rows; first_row=('south Moravia', 81)
+    generated_sql: SELECT d.A3 AS region, COUNT(*) AS loans_count
+FROM loan l
+JOIN account a ON l.account_id = a.account_id
+JOIN disp dp ON a.account_id = dp.account_id AND dp.type = 'OWNER'
+JOIN client c ON dp.client_id = c.client_id
+JOIN district d ON c.district_id = d.district_id
+WHERE l.status = 'C'
+GROUP BY d.A3
+ORDER BY loans_count DESC;
+    ground_truth_sql: SELECT l.loan_id, l.amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id WHERE d.A3 = 'south Moravia' AND l.status = 'C' ORDER BY l.loan_id
+
+  - BIRD-3-001 | turn 3 | source=bird
+    question: Count them.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(682,)
+    generated_sql: SELECT COUNT(*) FROM loan;
+    ground_truth_sql: SELECT COUNT(*) AS loan_count FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'south Moravia' AND l.status = 'C'
+
+  - BIRD-3-001 | turn 4 | source=bird
+    question: What is the total amount there?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(103261740,)
+    generated_sql: SELECT SUM(amount) FROM loan;
+    ground_truth_sql: SELECT SUM(l.amount) AS total_amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'south Moravia' AND l.status = 'C'
+
+  - BIRD-3-001 | turn 6 | source=bird
+    question: What is the smallest loan there?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(4980,)
+    generated_sql: SELECT MIN(amount) FROM loan;
+    ground_truth_sql: SELECT MIN(l.amount) AS min_amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'south Moravia' AND l.status = 'C'
+
+  - BIRD-3-001 | turn 7 | source=bird
+    question: What is the average loan amount there?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(151410.1759530792,)
+    generated_sql: SELECT AVG(amount) FROM loan;
+    ground_truth_sql: SELECT ROUND(AVG(l.amount), 2) AS avg_amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'south Moravia' AND l.status = 'C'
+
+  - BIRD-3-001 | turn 9 | source=bird
+    question: Go back to the original region and show the full loan count.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(0,)
+    generated_sql: SELECT COUNT(*) FROM loan l JOIN account a ON l.account_id = a.account_id JOIN disp d ON d.account_id = a.account_id AND d.type = 'OWNER' JOIN client c ON d.client_id = c.client_id JOIN district dist ON c.district_id = dist.district_id WHERE dist.A3 = 'ORIGINAL';
+    ground_truth_sql: SELECT COUNT(*) AS loan_count FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'south Moravia'
+
+Condition B
+  total turns: 297
+  correct: 226
+  incorrect: 71
+  sources: {'bird': 102, 'northwind': 105, 'sec_edgar': 90}
+  tiers: {1: 20, 2: 80, 3: 197}
+  turn_numbers: {1: 60, 2: 40, 3: 40, 4: 40, 5: 20, 6: 20, 7: 20, 8: 20, 9: 20, 10: 17}
+  failure_labels: {'other_semantic_mismatch': 61, 'uses_company_name_instead_of_customer_id': 10, 'wrong_granularity': 10, 'returns_order_level_rows': 10}
+
+  - BIRD-2-001 | turn 1 | source=bird
+    question: List south Moravia status C loans.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 81 rows; first_row=(5044, 344, '1994-12-21', 100980, 60, 1683.0, 'C')
+    generated_sql: SELECT l.loan_id, l.account_id, l.date, l.amount, l.duration, l.payments, l.status
+FROM loan l
+JOIN account a ON l.account_id = a.account_id
+JOIN disp d ON d.account_id = a.account_id AND d.type = 'OWNER'
+JOIN client c ON c.client_id = d.client_id
+JOIN district di ON di.district_id = c.district_id
+WHERE di.A3 = 'south Moravia' AND l.status = 'C';
+    ground_truth_sql: SELECT l.loan_id, l.amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id WHERE d.A3 = 'south Moravia' AND l.status = 'C' ORDER BY l.loan_id
+
+  - BIRD-3-001 | turn 1 | source=bird
+    question: List south Moravia region loans.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 133 rows; first_row=(5002, 173, '1994-05-31', 104808, 12, 8734.0, 'A')
+    generated_sql: SELECT DISTINCT loan.loan_id, loan.account_id, loan.date, loan.amount, loan.duration, loan.payments, loan.status
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'south Moravia';
+    ground_truth_sql: SELECT l.loan_id, l.amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id WHERE d.A3 = 'south Moravia' ORDER BY l.loan_id
+
+  - BIRD-3-001 | turn 2 | source=bird
+    question: Now only the status C ones.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 81 rows; first_row=(5044, 344, '1994-12-21', 100980, 60, 1683.0, 'C')
+    generated_sql: SELECT DISTINCT loan.loan_id, loan.account_id, loan.date, loan.amount, loan.duration, loan.payments, loan.status
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'south Moravia' AND loan.status = 'C';
+    ground_truth_sql: SELECT l.loan_id, l.amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id WHERE d.A3 = 'south Moravia' AND l.status = 'C' ORDER BY l.loan_id
+
+  - BIRD-3-001 | turn 7 | source=bird
+    question: What is the average loan amount there?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(173382.96296296295,)
+    generated_sql: SELECT AVG(loan.amount)
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'south Moravia' AND loan.status = 'C';
+    ground_truth_sql: SELECT ROUND(AVG(l.amount), 2) AS avg_amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'south Moravia' AND l.status = 'C'
+
+  - BIRD-3-001 | turn 10 | source=bird
+    question: Use the loan table and return the number of matching rows for that region.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(133,)
+    generated_sql: SELECT COUNT(*)
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'south Moravia';
+    ground_truth_sql: SELECT COUNT(*) AS loan_count FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'south Moravia' AND l.status = 'C'
+
+  - NW-3-001 | turn 5 | source=northwind
+    question: What was the average order subtotal for that year?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(27651.2975,)
+    generated_sql: SELECT AVG(subtot.Subtotal) AS AverageOrderSubtotal
+FROM (
+  SELECT o.OrderID, SUM(od.UnitPrice * od.Quantity * (1 - od.Discount)) AS Subtotal
+  FROM Orders o
+  JOIN [Order Details] od ON o.OrderID = od.OrderID
+  WHERE o.CustomerID = 'BSBEV' AND strftime('%Y', o.OrderDate) = '2023'
+  GROUP BY o.OrderID
+) AS subtot;
+    ground_truth_sql: SELECT ROUND(AVG(order_total), 2) AS avg_order_total FROM (SELECT o.OrderID, SUM(od.UnitPrice * od.Quantity * (1 - od.Discount)) AS order_total FROM Orders o JOIN [Order Details] od ON od.OrderID = o.OrderID WHERE o.CustomerID = 'BSBEV' AND strftime('%Y', o.OrderDate) = '2023' GROUP BY o.OrderID)
+
+  - NW-3-001 | turn 10 | source=northwind
+    question: Which employee handled the most orders for that customer in that year?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(7, 'Robert King', 3)
+    generated_sql: SELECT e.EmployeeID, (e.FirstName || ' ' || e.LastName) AS EmployeeName, COUNT(*) AS OrderCount
+FROM Orders o
+JOIN Employees e ON e.EmployeeID = o.EmployeeID
+WHERE o.CustomerID = 'BSBEV' AND strftime('%Y', o.OrderDate) = '2023'
+GROUP BY e.EmployeeID
+ORDER BY OrderCount DESC
+LIMIT 1;
+    ground_truth_sql: SELECT e.LastName, e.FirstName, COUNT(*) AS order_count FROM Orders o JOIN Employees e ON e.EmployeeID = o.EmployeeID WHERE o.CustomerID = 'BSBEV' AND strftime('%Y', o.OrderDate) = '2023' GROUP BY e.EmployeeID, e.LastName, e.FirstName ORDER BY order_count DESC, e.LastName, e.FirstName LIMIT 1
+
+  - BIRD-2-002 | turn 1 | source=bird
+    question: List north Moravia status C loans.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 63 rows; first_row=(5015, 226, '1998-07-12', 109344, 12, 9112.0, 'C')
+    generated_sql: SELECT DISTINCT l.loan_id, l.account_id, l.date, l.amount, l.duration, l.payments, l.status
+FROM loan l
+JOIN account a ON l.account_id = a.account_id
+JOIN disp d ON d.account_id = a.account_id AND d.type = 'OWNER'
+JOIN client c ON d.client_id = c.client_id
+JOIN district di ON c.district_id = di.district_id
+WHERE l.status = 'C' AND di.A3 = 'north Moravia';
+    ground_truth_sql: SELECT l.loan_id, l.amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id WHERE d.A3 = 'north Moravia' AND l.status = 'C' ORDER BY l.loan_id
+
+  - BIRD-2-002 | turn 4 | source=bird
+    question: What is the largest loan there?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(6436, 7049, '1998-05-22', 495180, 60, 8253.0, 'C')
+    generated_sql: SELECT l.loan_id, l.account_id, l.date, l.amount, l.duration, l.payments, l.status
+FROM loan l
+JOIN account a ON l.account_id = a.account_id
+JOIN disp d ON d.account_id = a.account_id AND d.type = 'OWNER'
+JOIN client c ON d.client_id = c.client_id
+JOIN district di ON c.district_id = di.district_id
+WHERE l.status = 'C' AND di.A3 = 'north Moravia'
+ORDER BY l.amount DESC
+LIMIT 1;
+    ground_truth_sql: SELECT MAX(l.amount) AS max_amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'north Moravia' AND l.status = 'C'
+
+  - BIRD-3-002 | turn 1 | source=bird
+    question: List north Moravia region loans.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 117 rows; first_row=(4962, 25, '1997-12-08', 30276, 12, 2523.0, 'A')
+    generated_sql: SELECT loan.loan_id, loan.account_id, loan.date, loan.amount, loan.duration, loan.payments, loan.status
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'north Moravia';
+    ground_truth_sql: SELECT l.loan_id, l.amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id WHERE d.A3 = 'north Moravia' ORDER BY l.loan_id
+
+Condition C
+  total turns: 297
+  correct: 227
+  incorrect: 70
+  sources: {'bird': 102, 'northwind': 105, 'sec_edgar': 90}
+  tiers: {1: 20, 2: 80, 3: 197}
+  turn_numbers: {1: 60, 2: 40, 3: 40, 4: 40, 5: 20, 6: 20, 7: 20, 8: 20, 9: 20, 10: 17}
+  failure_labels: {'other_semantic_mismatch': 62, 'uses_company_name_instead_of_customer_id': 8, 'wrong_granularity': 8, 'returns_order_level_rows': 8}
+
+  - BIRD-2-001 | turn 1 | source=bird
+    question: List south Moravia status C loans.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 81 rows; first_row=(5044, 344, '1994-12-21', 100980, 60, 1683.0, 'C')
+    generated_sql: SELECT l.loan_id, l.account_id, l.date, l.amount, l.duration, l.payments, l.status
+FROM loan l
+JOIN account a ON l.account_id = a.account_id
+JOIN disp d ON d.account_id = a.account_id AND d.type = 'OWNER'
+JOIN client c ON d.client_id = c.client_id
+JOIN district di ON c.district_id = di.district_id
+WHERE l.status = 'C' AND di.A3 = 'south Moravia';
+    ground_truth_sql: SELECT l.loan_id, l.amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id WHERE d.A3 = 'south Moravia' AND l.status = 'C' ORDER BY l.loan_id
+
+  - BIRD-3-001 | turn 1 | source=bird
+    question: List south Moravia region loans.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 133 rows; first_row=(5002, 173, '1994-05-31', 104808, 12, 8734.0, 'A')
+    generated_sql: SELECT loan.loan_id, loan.account_id, loan.date, loan.amount, loan.duration, loan.payments, loan.status
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'south Moravia';
+    ground_truth_sql: SELECT l.loan_id, l.amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id WHERE d.A3 = 'south Moravia' ORDER BY l.loan_id
+
+  - BIRD-3-001 | turn 2 | source=bird
+    question: Now only the status C ones.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 81 rows; first_row=(5044, 344, '1994-12-21', 100980, 60, 1683.0, 'C')
+    generated_sql: SELECT loan.loan_id, loan.account_id, loan.date, loan.amount, loan.duration, loan.payments, loan.status
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'south Moravia' AND loan.status = 'C';
+    ground_truth_sql: SELECT l.loan_id, l.amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id WHERE d.A3 = 'south Moravia' AND l.status = 'C' ORDER BY l.loan_id
+
+  - BIRD-3-001 | turn 5 | source=bird
+    question: What is the largest loan there?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(6534, 7542, '1997-10-19', 590820, 60, 9847.0, 'C')
+    generated_sql: SELECT loan.loan_id, loan.account_id, loan.date, loan.amount, loan.duration, loan.payments, loan.status
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'south Moravia' AND loan.status = 'C'
+ORDER BY loan.amount DESC
+LIMIT 1;
+    ground_truth_sql: SELECT MAX(l.amount) AS max_amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'south Moravia' AND l.status = 'C'
+
+  - BIRD-3-001 | turn 6 | source=bird
+    question: What is the smallest loan there?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(6688, 8268, '1997-09-26', 8616, 24, 359.0, 'C')
+    generated_sql: SELECT loan.loan_id, loan.account_id, loan.date, loan.amount, loan.duration, loan.payments, loan.status
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'south Moravia' AND loan.status = 'C'
+ORDER BY loan.amount ASC
+LIMIT 1;
+    ground_truth_sql: SELECT MIN(l.amount) AS min_amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'south Moravia' AND l.status = 'C'
+
+  - BIRD-3-001 | turn 7 | source=bird
+    question: What is the average loan amount there?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(173382.96296296295,)
+    generated_sql: SELECT AVG(loan.amount)
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'south Moravia' AND loan.status = 'C';
+    ground_truth_sql: SELECT ROUND(AVG(l.amount), 2) AS avg_amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'south Moravia' AND l.status = 'C'
+
+  - NW-2-001 | turn 1 | source=northwind
+    question: Show B's Beverages sales by year.
+    labels: uses_company_name_instead_of_customer_id, wrong_granularity, returns_order_level_rows
+    generated_error: None
+    result_summary: 12 rows; first_row=(2012, 240635.17)
+    generated_sql: SELECT CAST(strftime('%Y', Orders.OrderDate) AS INTEGER) AS Year, SUM([Order Details].UnitPrice * [Order Details].Quantity * (1 - [Order Details].Discount)) AS Sales
+FROM Orders
+JOIN Customers ON Orders.CustomerID = Customers.CustomerID
+JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+WHERE Customers.CompanyName = 'B''s Beverages' AND Orders.OrderDate IS NOT NULL
+GROUP BY CAST(strftime('%Y', Orders.OrderDate) AS INTEGER)
+ORDER BY Year;
+    ground_truth_sql: SELECT strftime('%Y', o.OrderDate) AS order_year, ROUND(SUM(od.UnitPrice * od.Quantity * (1 - od.Discount)), 2) AS sales_total FROM Orders o JOIN [Order Details] od ON od.OrderID = o.OrderID WHERE o.CustomerID = 'BSBEV' GROUP BY order_year ORDER BY order_year
+
+  - NW-2-001 | turn 2 | source=northwind
+    question: Which year was highest?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(2021,)
+    generated_sql: SELECT CAST(strftime('%Y', Orders.OrderDate) AS INTEGER) AS Year
+FROM Orders
+JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+WHERE Orders.CustomerID = 'BSBEV' AND Orders.OrderDate IS NOT NULL
+GROUP BY CAST(strftime('%Y', Orders.OrderDate) AS INTEGER)
+ORDER BY SUM([Order Details].UnitPrice * [Order Details].Quantity * (1 - [Order Details].Discount)) DESC
+LIMIT 1;
+    ground_truth_sql: SELECT strftime('%Y', o.OrderDate) AS order_year FROM Orders o JOIN [Order Details] od ON od.OrderID = o.OrderID WHERE o.CustomerID = 'BSBEV' GROUP BY order_year ORDER BY SUM(od.UnitPrice * od.Quantity * (1 - od.Discount)) DESC, order_year DESC LIMIT 1
+
+  - NW-3-001 | turn 5 | source=northwind
+    question: What was the average order subtotal for that year?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(27651.2975,)
+    generated_sql: SELECT AVG(Subtotal) AS AverageOrderSubtotal
+FROM (
+  SELECT Orders.OrderID, SUM([Order Details].UnitPrice * [Order Details].Quantity * (1 - [Order Details].Discount)) AS Subtotal
+  FROM Orders
+  JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+  WHERE Orders.CustomerID = 'BSBEV'
+    AND Orders.OrderDate BETWEEN DATETIME('2023-01-01') AND DATETIME('2023-12-31')
+  GROUP BY Orders.OrderID
+);
+    ground_truth_sql: SELECT ROUND(AVG(order_total), 2) AS avg_order_total FROM (SELECT o.OrderID, SUM(od.UnitPrice * od.Quantity * (1 - od.Discount)) AS order_total FROM Orders o JOIN [Order Details] od ON od.OrderID = o.OrderID WHERE o.CustomerID = 'BSBEV' AND strftime('%Y', o.OrderDate) = '2023' GROUP BY o.OrderID)
+
+  - NW-3-001 | turn 10 | source=northwind
+    question: Which employee handled the most orders for that customer in that year?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(7, 'Robert King', 3)
+    generated_sql: WITH counts AS (
+  SELECT EmployeeID, COUNT(*) AS OrderCount
+  FROM Orders
+  WHERE CustomerID = 'BSBEV'
+    AND OrderDate BETWEEN DATETIME('2023-01-01') AND DATETIME('2023-12-31')
+  GROUP BY EmployeeID
+)
+SELECT e.EmployeeID,
+       e.FirstName || ' ' || e.LastName AS EmployeeName,
+       c.OrderCount
+FROM counts c
+JOIN Employees e ON e.EmployeeID = c.EmployeeID
+WHERE c.OrderCount = (SELECT MAX(OrderCount) FROM counts);
+    ground_truth_sql: SELECT e.LastName, e.FirstName, COUNT(*) AS order_count FROM Orders o JOIN Employees e ON e.EmployeeID = o.EmployeeID WHERE o.CustomerID = 'BSBEV' AND strftime('%Y', o.OrderDate) = '2023' GROUP BY e.EmployeeID, e.LastName, e.FirstName ORDER BY order_count DESC, e.LastName, e.FirstName LIMIT 1
+
+Condition D
+  total turns: 297
+  correct: 216
+  incorrect: 81
+  sources: {'bird': 102, 'northwind': 105, 'sec_edgar': 90}
+  tiers: {1: 20, 2: 80, 3: 197}
+  turn_numbers: {1: 60, 2: 40, 3: 40, 4: 40, 5: 20, 6: 20, 7: 20, 8: 20, 9: 20, 10: 17}
+  failure_labels: {'other_semantic_mismatch': 71, 'uses_company_name_instead_of_customer_id': 8, 'wrong_granularity': 8, 'returns_order_level_rows': 8, 'empty_result': 2}
+
+  - BIRD-2-001 | turn 1 | source=bird
+    question: List south Moravia status C loans.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 81 rows; first_row=(5044, 344, '1994-12-21', 100980, 60, 1683.0, 'C')
+    generated_sql: SELECT DISTINCT l.loan_id, l.account_id, l.date, l.amount, l.duration, l.payments, l.status
+FROM loan l
+JOIN account a ON l.account_id = a.account_id
+JOIN disp d ON d.account_id = a.account_id AND d.type = 'OWNER'
+JOIN client c ON d.client_id = c.client_id
+JOIN district di ON c.district_id = di.district_id
+WHERE di.A3 = 'south Moravia' AND l.status = 'C';
+    ground_truth_sql: SELECT l.loan_id, l.amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id WHERE d.A3 = 'south Moravia' AND l.status = 'C' ORDER BY l.loan_id
+
+  - BIRD-2-001 | turn 4 | source=bird
+    question: What is the largest loan there?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(6534, 590820)
+    generated_sql: SELECT l.loan_id, l.amount
+FROM loan l
+JOIN account a ON l.account_id = a.account_id
+JOIN disp d ON d.account_id = a.account_id AND d.type = 'OWNER'
+JOIN client c ON d.client_id = c.client_id
+JOIN district di ON c.district_id = di.district_id
+WHERE di.A3 = 'south Moravia' AND l.status = 'C'
+ORDER BY l.amount DESC, l.loan_id ASC
+LIMIT 1;
+    ground_truth_sql: SELECT MAX(l.amount) AS max_amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'south Moravia' AND l.status = 'C'
+
+  - BIRD-3-001 | turn 1 | source=bird
+    question: List south Moravia region loans.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 133 rows; first_row=(5002, 173, '1994-05-31', 104808, 12, 8734.0, 'A')
+    generated_sql: SELECT loan.loan_id, loan.account_id, loan.date, loan.amount, loan.duration, loan.payments, loan.status
+FROM loan
+JOIN account ON account.account_id = loan.account_id
+JOIN disp ON disp.account_id = account.account_id AND disp.type = 'OWNER'
+JOIN client ON client.client_id = disp.client_id
+JOIN district ON district.district_id = client.district_id
+WHERE district.A3 = 'south Moravia';
+    ground_truth_sql: SELECT l.loan_id, l.amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id WHERE d.A3 = 'south Moravia' ORDER BY l.loan_id
+
+  - BIRD-3-001 | turn 2 | source=bird
+    question: Now only the status C ones.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 81 rows; first_row=(5044, 344, '1994-12-21', 100980, 60, 1683.0, 'C')
+    generated_sql: SELECT loan.loan_id, loan.account_id, loan.date, loan.amount, loan.duration, loan.payments, loan.status
+FROM loan
+JOIN account ON account.account_id = loan.account_id
+JOIN disp ON disp.account_id = account.account_id AND disp.type = 'OWNER'
+JOIN client ON client.client_id = disp.client_id
+JOIN district ON district.district_id = client.district_id
+WHERE district.A3 = 'south Moravia' AND loan.status = 'C';
+    ground_truth_sql: SELECT l.loan_id, l.amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id WHERE d.A3 = 'south Moravia' AND l.status = 'C' ORDER BY l.loan_id
+
+  - BIRD-3-001 | turn 7 | source=bird
+    question: What is the average loan amount there?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(173382.96296296295,)
+    generated_sql: SELECT AVG(loan.amount)
+FROM loan
+JOIN account ON account.account_id = loan.account_id
+JOIN disp ON disp.account_id = account.account_id AND disp.type = 'OWNER'
+JOIN client ON client.client_id = disp.client_id
+JOIN district ON district.district_id = client.district_id
+WHERE district.A3 = 'south Moravia' AND loan.status = 'C';
+    ground_truth_sql: SELECT ROUND(AVG(l.amount), 2) AS avg_amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'south Moravia' AND l.status = 'C'
+
+  - NW-3-001 | turn 1 | source=northwind
+    question: Show B's Beverages sales by year.
+    labels: uses_company_name_instead_of_customer_id, wrong_granularity, returns_order_level_rows
+    generated_error: None
+    result_summary: 12 rows; first_row=(2012, 240635.17)
+    generated_sql: SELECT CAST(strftime('%Y', o.OrderDate) AS INTEGER) AS Year,
+       SUM(od.UnitPrice * od.Quantity * (1 - od.Discount)) AS Sales
+FROM Orders o
+JOIN Customers c ON o.CustomerID = c.CustomerID
+JOIN [Order Details] od ON o.OrderID = od.OrderID
+WHERE c.CompanyName = 'B''s Beverages' AND o.OrderDate IS NOT NULL
+GROUP BY strftime('%Y', o.OrderDate)
+ORDER BY Year;
+    ground_truth_sql: SELECT strftime('%Y', o.OrderDate) AS order_year, ROUND(SUM(od.UnitPrice * od.Quantity * (1 - od.Discount)), 2) AS sales_total FROM Orders o JOIN [Order Details] od ON od.OrderID = o.OrderID WHERE o.CustomerID = 'BSBEV' GROUP BY order_year ORDER BY order_year
+
+  - NW-3-001 | turn 5 | source=northwind
+    question: What was the average order subtotal for that year?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(27651.2975,)
+    generated_sql: SELECT AVG(Subtotal) FROM (SELECT SUM(od.UnitPrice * od.Quantity * (1 - od.Discount)) AS Subtotal FROM Orders o JOIN [Order Details] od ON o.OrderID = od.OrderID WHERE o.CustomerID = 'BSBEV' AND strftime('%Y', o.OrderDate) = '2023' GROUP BY o.OrderID);
+    ground_truth_sql: SELECT ROUND(AVG(order_total), 2) AS avg_order_total FROM (SELECT o.OrderID, SUM(od.UnitPrice * od.Quantity * (1 - od.Discount)) AS order_total FROM Orders o JOIN [Order Details] od ON od.OrderID = o.OrderID WHERE o.CustomerID = 'BSBEV' AND strftime('%Y', o.OrderDate) = '2023' GROUP BY o.OrderID)
+
+  - NW-3-001 | turn 10 | source=northwind
+    question: Which employee handled the most orders for that customer in that year?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(7, 'Robert King', 3)
+    generated_sql: WITH counts AS (
+  SELECT EmployeeID, COUNT(*) AS cnt
+  FROM Orders
+  WHERE CustomerID = 'BSBEV'
+    AND EmployeeID IS NOT NULL
+    AND strftime('%Y', OrderDate) = '2023'
+  GROUP BY EmployeeID
+)
+SELECT e.EmployeeID,
+       e.FirstName || ' ' || e.LastName AS EmployeeName,
+       c.cnt AS OrderCount
+FROM counts c
+JOIN Employees e ON e.EmployeeID = c.EmployeeID
+WHERE c.cnt = (SELECT MAX(cnt) FROM counts);
+    ground_truth_sql: SELECT e.LastName, e.FirstName, COUNT(*) AS order_count FROM Orders o JOIN Employees e ON e.EmployeeID = o.EmployeeID WHERE o.CustomerID = 'BSBEV' AND strftime('%Y', o.OrderDate) = '2023' GROUP BY e.EmployeeID, e.LastName, e.FirstName ORDER BY order_count DESC, e.LastName, e.FirstName LIMIT 1
+
+  - BIRD-2-002 | turn 1 | source=bird
+    question: List north Moravia status C loans.
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 63 rows; first_row=(5015, 226, '1998-07-12', 109344, 12, 9112.0, 'C')
+    generated_sql: SELECT loan.*
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE loan.status = 'C' AND district.A3 = 'north Moravia';
+    ground_truth_sql: SELECT l.loan_id, l.amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id WHERE d.A3 = 'north Moravia' AND l.status = 'C' ORDER BY l.loan_id
+
+  - BIRD-2-002 | turn 4 | source=bird
+    question: What is the largest loan there?
+    labels: other_semantic_mismatch
+    generated_error: None
+    result_summary: 1 rows; first_row=(6436, 7049, '1998-05-22', 495180, 60, 8253.0, 'C')
+    generated_sql: SELECT loan.*
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE loan.status = 'C' AND district.A3 = 'north Moravia' AND loan.amount = (
+  SELECT MAX(l2.amount)
+  FROM loan l2
+  JOIN account a2 ON l2.account_id = a2.account_id
+  JOIN disp d2 ON a2.account_id = d2.account_id AND d2.type = 'OWNER'
+  JOIN client c2 ON d2.client_id = c2.client_id
+  JOIN district dist2 ON c2.district_id = dist2.district_id
+  WHERE l2.status = 'C' AND dist2.A3 = 'north Moravia'
+);
+    ground_truth_sql: SELECT MAX(l.amount) AS max_amount FROM loan l JOIN account a ON a.account_id = l.account_id JOIN disp dp ON dp.account_id = a.account_id AND dp.type = 'OWNER' JOIN client c ON c.client_id = dp.client_id JOIN district d ON d.district_id = c.district_id  WHERE d.A3 = 'north Moravia' AND l.status = 'C'
+
+Comparison C vs D
+  C_correct_D_wrong: 24
+  D_correct_C_wrong: 13
+
+  C wins on:
+  - BIRD-2-001 | turn 4 | source=bird
+    question: What is the largest loan there?
+    C sql: SELECT MAX(l.amount)
+FROM loan l
+JOIN account a ON l.account_id = a.account_id
+JOIN disp d ON d.account_id = a.account_id AND d.type = 'OWNER'
+JOIN client c ON d.client_id = c.client_id
+JOIN district di ON c.district_id = di.district_id
+WHERE l.status = 'C' AND di.A3 = 'south Moravia';
+    D sql: SELECT l.loan_id, l.amount
+FROM loan l
+JOIN account a ON l.account_id = a.account_id
+JOIN disp d ON d.account_id = a.account_id AND d.type = 'OWNER'
+JOIN client c ON d.client_id = c.client_id
+JOIN district di ON c.district_id = di.district_id
+WHERE di.A3 = 'south Moravia' AND l.status = 'C'
+ORDER BY l.amount DESC, l.loan_id ASC
+LIMIT 1;
+    D labels: other_semantic_mismatch
+
+  - NW-3-001 | turn 1 | source=northwind
+    question: Show B's Beverages sales by year.
+    C sql: SELECT strftime('%Y', Orders.OrderDate) AS Year, SUM([Order Details].UnitPrice * [Order Details].Quantity * (1 - [Order Details].Discount)) AS Sales
+FROM Orders
+JOIN Customers ON Orders.CustomerID = Customers.CustomerID
+JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+WHERE Customers.CompanyName = 'B''s Beverages' AND Orders.OrderDate IS NOT NULL
+GROUP BY strftime('%Y', Orders.OrderDate)
+ORDER BY Year;
+    D sql: SELECT CAST(strftime('%Y', o.OrderDate) AS INTEGER) AS Year,
+       SUM(od.UnitPrice * od.Quantity * (1 - od.Discount)) AS Sales
+FROM Orders o
+JOIN Customers c ON o.CustomerID = c.CustomerID
+JOIN [Order Details] od ON o.OrderID = od.OrderID
+WHERE c.CompanyName = 'B''s Beverages' AND o.OrderDate IS NOT NULL
+GROUP BY strftime('%Y', o.OrderDate)
+ORDER BY Year;
+    D labels: uses_company_name_instead_of_customer_id, wrong_granularity, returns_order_level_rows
+
+  - NW-2-002 | turn 1 | source=northwind
+    question: Show LILA-Supermercado sales by year.
+    C sql: SELECT strftime('%Y', Orders.OrderDate) AS Year, SUM([Order Details].UnitPrice * [Order Details].Quantity * (1 - [Order Details].Discount)) AS TotalSales
+FROM Orders
+JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+JOIN Customers ON Orders.CustomerID = Customers.CustomerID
+WHERE Customers.CompanyName = 'LILA-Supermercado' AND Orders.OrderDate IS NOT NULL
+GROUP BY strftime('%Y', Orders.OrderDate)
+ORDER BY Year;
+    D sql: SELECT CAST(strftime('%Y', Orders.OrderDate) AS INTEGER) AS Year, SUM([Order Details].UnitPrice * [Order Details].Quantity * (1 - [Order Details].Discount)) AS TotalSales
+FROM Orders
+JOIN Customers ON Orders.CustomerID = Customers.CustomerID
+JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+WHERE Customers.CompanyName = 'LILA-Supermercado' AND Orders.OrderDate IS NOT NULL
+GROUP BY CAST(strftime('%Y', Orders.OrderDate) AS INTEGER)
+ORDER BY Year;
+    D labels: uses_company_name_instead_of_customer_id, wrong_granularity, returns_order_level_rows
+
+  - NW-2-002 | turn 2 | source=northwind
+    question: Which year was highest?
+    C sql: SELECT strftime('%Y', Orders.OrderDate) AS Year
+FROM Orders
+JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+WHERE Orders.CustomerID = 'LILAS' AND Orders.OrderDate IS NOT NULL
+GROUP BY strftime('%Y', Orders.OrderDate)
+ORDER BY SUM([Order Details].UnitPrice * [Order Details].Quantity * (1 - [Order Details].Discount)) DESC
+LIMIT 1;
+    D sql: SELECT CAST(strftime('%Y', Orders.OrderDate) AS INTEGER) AS Year
+FROM Orders
+JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+WHERE Orders.CustomerID = 'LILAS' AND Orders.OrderDate IS NOT NULL
+GROUP BY CAST(strftime('%Y', Orders.OrderDate) AS INTEGER)
+ORDER BY SUM([Order Details].UnitPrice * [Order Details].Quantity * (1 - [Order Details].Discount)) DESC
+LIMIT 1;
+    D labels: other_semantic_mismatch
+
+  - BIRD-3-004 | turn 5 | source=bird
+    question: What is the largest loan there?
+    C sql: SELECT MAX(loan.amount)
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON disp.account_id = account.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'central Bohemia' AND loan.status = 'C';
+    D sql: SELECT loan.* FROM loan JOIN account ON loan.account_id = account.account_id JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER' JOIN client ON disp.client_id = client.client_id JOIN district ON client.district_id = district.district_id WHERE district.A3 = 'central Bohemia' AND loan.status = 'C' ORDER BY loan.amount DESC LIMIT 1;
+    D labels: other_semantic_mismatch
+
+  - BIRD-3-004 | turn 6 | source=bird
+    question: What is the smallest loan there?
+    C sql: SELECT MIN(loan.amount)
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON disp.account_id = account.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'central Bohemia' AND loan.status = 'C';
+    D sql: SELECT loan.* FROM loan JOIN account ON loan.account_id = account.account_id JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER' JOIN client ON disp.client_id = client.client_id JOIN district ON client.district_id = district.district_id WHERE district.A3 = 'central Bohemia' AND loan.status = 'C' ORDER BY loan.amount ASC LIMIT 1;
+    D labels: other_semantic_mismatch
+
+  - SEC-3-004 | turn 2 | source=sec_edgar
+    question: Which year was higher?
+    C sql: SELECT fiscal_year
+FROM annual_financials
+WHERE ticker = 'GOOGL' AND metric = 'revenue' AND fiscal_year IN (2023, 2024)
+ORDER BY value_billions DESC
+LIMIT 1;
+    D sql: SELECT fiscal_year, value_billions
+FROM annual_financials
+WHERE ticker = 'GOOGL' AND metric = 'revenue' AND fiscal_year IN (2023, 2024)
+ORDER BY value_billions DESC
+LIMIT 1;
+    D labels: other_semantic_mismatch
+
+  - SEC-3-004 | turn 4 | source=sec_edgar
+    question: Which year was higher there?
+    C sql: SELECT fiscal_year
+FROM annual_financials
+WHERE ticker = 'GOOGL' AND metric = 'net_income' AND fiscal_year IN (2023, 2024)
+ORDER BY value_billions DESC
+LIMIT 1;
+    D sql: SELECT fiscal_year, value_billions
+FROM annual_financials
+WHERE ticker = 'GOOGL' AND metric = 'net_income' AND fiscal_year IN (2023, 2024)
+ORDER BY value_billions DESC
+LIMIT 1;
+    D labels: other_semantic_mismatch
+
+  - SEC-3-004 | turn 6 | source=sec_edgar
+    question: Which year was higher there?
+    C sql: SELECT fiscal_year
+FROM annual_financials
+WHERE ticker = 'GOOGL' AND metric = 'cash' AND fiscal_year IN (2023, 2024)
+ORDER BY value_billions DESC
+LIMIT 1;
+    D sql: SELECT fiscal_year, value_billions
+FROM annual_financials
+WHERE ticker = 'GOOGL' AND metric = 'cash' AND fiscal_year IN (2023, 2024)
+ORDER BY value_billions DESC
+LIMIT 1;
+    D labels: other_semantic_mismatch
+
+  - SEC-3-004 | turn 8 | source=sec_edgar
+    question: Which year was higher there?
+    C sql: SELECT fiscal_year
+FROM annual_financials
+WHERE ticker = 'GOOGL' AND metric = 'total_assets' AND fiscal_year IN (2023, 2024)
+ORDER BY value_billions DESC
+LIMIT 1;
+    D sql: SELECT fiscal_year, value_billions
+FROM annual_financials
+WHERE ticker = 'GOOGL' AND metric = 'total_assets' AND fiscal_year IN (2023, 2024)
+ORDER BY value_billions DESC
+LIMIT 1;
+    D labels: other_semantic_mismatch
+
+  D wins on:
+  - BIRD-3-001 | turn 5 | source=bird
+    question: What is the largest loan there?
+    C sql: SELECT loan.loan_id, loan.account_id, loan.date, loan.amount, loan.duration, loan.payments, loan.status
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'south Moravia' AND loan.status = 'C'
+ORDER BY loan.amount DESC
+LIMIT 1;
+    C labels: other_semantic_mismatch
+    D sql: SELECT MAX(loan.amount)
+FROM loan
+JOIN account ON account.account_id = loan.account_id
+JOIN disp ON disp.account_id = account.account_id AND disp.type = 'OWNER'
+JOIN client ON client.client_id = disp.client_id
+JOIN district ON district.district_id = client.district_id
+WHERE district.A3 = 'south Moravia' AND loan.status = 'C';
+
+  - BIRD-3-001 | turn 6 | source=bird
+    question: What is the smallest loan there?
+    C sql: SELECT loan.loan_id, loan.account_id, loan.date, loan.amount, loan.duration, loan.payments, loan.status
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'south Moravia' AND loan.status = 'C'
+ORDER BY loan.amount ASC
+LIMIT 1;
+    C labels: other_semantic_mismatch
+    D sql: SELECT MIN(loan.amount)
+FROM loan
+JOIN account ON account.account_id = loan.account_id
+JOIN disp ON disp.account_id = account.account_id AND disp.type = 'OWNER'
+JOIN client ON client.client_id = disp.client_id
+JOIN district ON district.district_id = client.district_id
+WHERE district.A3 = 'south Moravia' AND loan.status = 'C';
+
+  - NW-2-001 | turn 1 | source=northwind
+    question: Show B's Beverages sales by year.
+    C sql: SELECT CAST(strftime('%Y', Orders.OrderDate) AS INTEGER) AS Year, SUM([Order Details].UnitPrice * [Order Details].Quantity * (1 - [Order Details].Discount)) AS Sales
+FROM Orders
+JOIN Customers ON Orders.CustomerID = Customers.CustomerID
+JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+WHERE Customers.CompanyName = 'B''s Beverages' AND Orders.OrderDate IS NOT NULL
+GROUP BY CAST(strftime('%Y', Orders.OrderDate) AS INTEGER)
+ORDER BY Year;
+    C labels: uses_company_name_instead_of_customer_id, wrong_granularity, returns_order_level_rows
+    D sql: SELECT STRFTIME('%Y', Orders.OrderDate) AS Year, 
+       SUM([Order Details].UnitPrice * [Order Details].Quantity * (1 - [Order Details].Discount)) AS Sales
+FROM Customers
+JOIN Orders ON Customers.CustomerID = Orders.CustomerID
+JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+WHERE Customers.CompanyName = 'B''s Beverages'
+  AND Orders.OrderDate IS NOT NULL
+GROUP BY Year
+ORDER BY Year;
+
+  - NW-2-001 | turn 2 | source=northwind
+    question: Which year was highest?
+    C sql: SELECT CAST(strftime('%Y', Orders.OrderDate) AS INTEGER) AS Year
+FROM Orders
+JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+WHERE Orders.CustomerID = 'BSBEV' AND Orders.OrderDate IS NOT NULL
+GROUP BY CAST(strftime('%Y', Orders.OrderDate) AS INTEGER)
+ORDER BY SUM([Order Details].UnitPrice * [Order Details].Quantity * (1 - [Order Details].Discount)) DESC
+LIMIT 1;
+    C labels: other_semantic_mismatch
+    D sql: SELECT STRFTIME('%Y', Orders.OrderDate) AS Year
+FROM Orders
+JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+WHERE Orders.CustomerID = 'BSBEV' AND Orders.OrderDate IS NOT NULL
+GROUP BY Year
+ORDER BY SUM([Order Details].UnitPrice * [Order Details].Quantity * (1 - [Order Details].Discount)) DESC
+LIMIT 1;
+
+  - NW-3-002 | turn 1 | source=northwind
+    question: Show LILA-Supermercado sales by year.
+    C sql: SELECT CAST(STRFTIME('%Y', Orders.OrderDate) AS INTEGER) AS Year,
+       SUM([Order Details].UnitPrice * [Order Details].Quantity * (1 - [Order Details].Discount)) AS TotalSales
+FROM Orders
+JOIN Customers ON Orders.CustomerID = Customers.CustomerID
+JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+WHERE Customers.CompanyName = 'LILA-Supermercado'
+  AND Orders.OrderDate IS NOT NULL
+GROUP BY CAST(STRFTIME('%Y', Orders.OrderDate) AS INTEGER)
+ORDER BY Year;
+    C labels: uses_company_name_instead_of_customer_id, wrong_granularity, returns_order_level_rows
+    D sql: SELECT strftime('%Y', Orders.OrderDate) AS Year, SUM([Order Details].UnitPrice * [Order Details].Quantity * (1 - [Order Details].Discount)) AS Sales
+FROM Orders
+JOIN Customers ON Orders.CustomerID = Customers.CustomerID
+JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+WHERE Customers.CompanyName = 'LILA-Supermercado' AND Orders.OrderDate IS NOT NULL
+GROUP BY strftime('%Y', Orders.OrderDate)
+ORDER BY strftime('%Y', Orders.OrderDate);
+
+  - BIRD-2-003 | turn 4 | source=bird
+    question: What is the largest loan there?
+    C sql: SELECT loan.loan_id, loan.account_id, loan.date, loan.amount, loan.duration, loan.payments, loan.status
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'east Bohemia' AND loan.status = 'C' AND loan.amount = (
+  SELECT MAX(l2.amount) FROM loan l2
+  JOIN account a2 ON l2.account_id = a2.account_id
+  JOIN disp d2 ON a2.account_id = d2.account_id AND d2.type = 'OWNER'
+  JOIN client c2 ON d2.client_id = c2.client_id
+  JOIN district dist2 ON c2.district_id = dist2.district_id
+  WHERE dist2.A3 = 'east Bohemia' AND l2.status = 'C'
+);
+    C labels: other_semantic_mismatch
+    D sql: SELECT MAX(loan.amount) FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'east Bohemia' AND loan.status = 'C';
+
+  - BIRD-3-006 | turn 5 | source=bird
+    question: What is the largest loan there?
+    C sql: SELECT l.loan_id, l.amount
+FROM loan l
+JOIN account a ON l.account_id = a.account_id
+JOIN disp d ON a.account_id = d.account_id AND d.type = 'OWNER'
+JOIN client c ON d.client_id = c.client_id
+JOIN district dist ON c.district_id = dist.district_id
+WHERE dist.A3 = 'north Bohemia' AND l.status = 'C'
+  AND l.amount = (
+    SELECT MAX(l2.amount)
+    FROM loan l2
+    JOIN account a2 ON l2.account_id = a2.account_id
+    JOIN disp d2 ON a2.account_id = d2.account_id AND d2.type = 'OWNER'
+    JOIN client c2 ON d2.client_id = c2.client_id
+    JOIN district dist2 ON c2.district_id = dist2.district_id
+    WHERE dist2.A3 = 'north Bohemia' AND l2.status = 'C'
+  );
+    C labels: other_semantic_mismatch
+    D sql: SELECT MAX(loan.amount)
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'north Bohemia' AND loan.status = 'C';
+
+  - BIRD-3-006 | turn 6 | source=bird
+    question: What is the smallest loan there?
+    C sql: SELECT l.loan_id, l.amount
+FROM loan l
+JOIN account a ON l.account_id = a.account_id
+JOIN disp d ON a.account_id = d.account_id AND d.type = 'OWNER'
+JOIN client c ON d.client_id = c.client_id
+JOIN district dist ON c.district_id = dist.district_id
+WHERE dist.A3 = 'north Bohemia' AND l.status = 'C'
+  AND l.amount = (
+    SELECT MIN(l2.amount)
+    FROM loan l2
+    JOIN account a2 ON l2.account_id = a2.account_id
+    JOIN disp d2 ON a2.account_id = d2.account_id AND d2.type = 'OWNER'
+    JOIN client c2 ON d2.client_id = c2.client_id
+    JOIN district dist2 ON c2.district_id = dist2.district_id
+    WHERE dist2.A3 = 'north Bohemia' AND l2.status = 'C'
+  );
+    C labels: other_semantic_mismatch
+    D sql: SELECT MIN(loan.amount)
+FROM loan
+JOIN account ON loan.account_id = account.account_id
+JOIN disp ON account.account_id = disp.account_id AND disp.type = 'OWNER'
+JOIN client ON disp.client_id = client.client_id
+JOIN district ON client.district_id = district.district_id
+WHERE district.A3 = 'north Bohemia' AND loan.status = 'C';
+
+  - SEC-2-006 | turn 2 | source=sec_edgar
+    question: Which year was higher?
+    C sql: SELECT fiscal_year, value_billions
+FROM annual_financials
+WHERE ticker = 'HD' AND metric = 'revenue' AND fiscal_year IN (2023, 2024)
+ORDER BY value_billions DESC
+LIMIT 1;
+    C labels: other_semantic_mismatch
+    D sql: SELECT fiscal_year
+FROM annual_financials
+WHERE ticker = 'HD'
+  AND metric = 'revenue'
+  AND fiscal_year IN (2023, 2024)
+  AND value_billions = (
+    SELECT MAX(value_billions)
+    FROM annual_financials
+    WHERE ticker = 'HD'
+      AND metric = 'revenue'
+      AND fiscal_year IN (2023, 2024)
+  );
+
+  - SEC-2-006 | turn 4 | source=sec_edgar
+    question: Which year was higher there?
+    C sql: SELECT fiscal_year, value_billions
+FROM annual_financials
+WHERE ticker = 'HD' AND metric = 'net_income' AND fiscal_year IN (2023, 2024)
+ORDER BY value_billions DESC
+LIMIT 1;
+    C labels: other_semantic_mismatch
+    D sql: SELECT fiscal_year
+FROM annual_financials
+WHERE ticker = 'HD'
+  AND metric = 'net_income'
+  AND fiscal_year IN (2023, 2024)
+  AND value_billions = (
+    SELECT MAX(value_billions)
+    FROM annual_financials
+    WHERE ticker = 'HD'
+      AND metric = 'net_income'
+      AND fiscal_year IN (2023, 2024)
+  );
+

@@ -1,0 +1,38 @@
+experiment:
+  name: enterprise-mem-bench
+  default_condition_order:
+    - A
+    - B
+    - C
+    - D
+  working_memory_window: 5
+  episodic_memory_top_k: 3
+  semantic_memory_top_k: 2
+  smoke_test_sessions_per_source: 1
+  max_parallel_sessions: 2
+  results_dir: experiments/exp0_foundation/results
+datasets:
+  session_file: data/sessions/all_sessions.json
+  source_databases:
+    northwind: data/northwind/northwind.db
+    sec_edgar: data/sec_edgar/sec_edgar.db
+    bird: data/bird/bird.db
+memory:
+  semantic_seed_file: data/sessions/semantic_memory.json
+  chroma_namespace: exp0
+  semantic_namespace: exp0_semantic
+  redis_namespace: exp0
+services:
+  redis:
+    host: 127.0.0.1
+    port: 6379
+  chroma:
+    base_url: http://127.0.0.1:8000
+    tenant: default_tenant
+    database: default_database
+  gateway:
+    base_url: http://127.0.0.1:8090
+    chat_completions_path: /v1/chat/completions
+    model_provider: openai
+    model: gpt-5-mini
+    fallback_model: gpt-4.1-mini

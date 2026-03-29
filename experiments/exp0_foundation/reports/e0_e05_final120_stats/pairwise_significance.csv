@@ -1,0 +1,7 @@
+left_condition,left_label,right_condition,right_label,left_correct_right_wrong,right_correct_left_wrong,discordant_total,delta_accuracy,delta_ci_low,delta_ci_high,mcnemar_p_exact,holm_adjusted_p,significant_0_05
+A,A,B,B wm2,8,374,382,-0.631034,-0.672414,-0.587931,0.0,0.0,True
+A,A,C,C ep3,8,362,370,-0.610345,-0.651724,-0.567241,0.0,0.0,True
+A,A,D,D sem1,9,361,370,-0.606897,-0.648276,-0.565517,0.0,0.0,True
+B,B wm2,C,C ep3,37,25,62,0.02069,-0.005172,0.048276,0.16188141,0.35882802,False
+B,B wm2,D,D sem1,42,28,70,0.024138,-0.003448,0.051724,0.11960934,0.35882802,False
+C,C ep3,D,D sem1,31,29,60,0.003448,-0.022414,0.02931,0.89742183,0.89742183,False

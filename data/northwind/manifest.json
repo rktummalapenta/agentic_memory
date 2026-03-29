@@ -1,0 +1,20 @@
+{
+  "source": "https://codeload.github.com/jpwhite3/northwind-SQLite3/zip/refs/heads/main",
+  "database_path": "data/northwind/northwind.db",
+  "table_count": 13,
+  "tables": [
+    "Categories",
+    "CustomerCustomerDemo",
+    "CustomerDemographics",
+    "Customers",
+    "EmployeeTerritories",
+    "Employees",
+    "Order Details",
+    "Orders",
+    "Products",
+    "Regions",
+    "Shippers",
+    "Suppliers",
+    "Territories"
+  ]
+}

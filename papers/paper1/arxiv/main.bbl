@@ -1,0 +1,58 @@
+\begin{thebibliography}{1}
+
+\bibitem{mem0}
+Sai Gonuguntla, Yash Agarwal, Harsh Deora, Hrishikesh Vemulapalli, and Shubham
+  Dasgupta.
+\newblock {Mem0}: Building production-ready {AI} agents with scalable long-term
+  memory.
+\newblock {\em arXiv preprint arXiv:2504.19413}, 2025.
+
+\bibitem{lewis2020rag}
+Patrick Lewis, Ethan Perez, Aleksandra Piktus, Fabio Petroni, Vladimir
+  Karpukhin, Naman Goyal, Heinrich K{\"u}ttler, Mike Lewis, Wen-tau Yih, Tim
+  Rockt{\"a}schel, Sebastian Riedel, and Douwe Kiela.
+\newblock Retrieval-augmented generation for knowledge-intensive {NLP} tasks.
+\newblock {\em arXiv preprint arXiv:2005.11401}, 2020.
+
+\bibitem{li2023bird}
+Jinyang Li, Binyuan Hui, Gequn Cheng, Binhua Qin, Jiaxi Yang, Bowen Li, Bailin
+  Wang, Neil Li, Nan Huo, Fei Huang, Yongbin Li, et~al.
+\newblock Can {LLM} already serve as a database interface? a big bench for
+  large-scale database grounded text-to-sqls.
+\newblock {\em arXiv preprint arXiv:2305.03111}, 2023.
+
+\bibitem{liu2022cqrsql}
+Qi~Liu, Bei Chen, Jiaqi Guo, Zhouyu Lin, Jian-Guang Lou, and Dongmei Zhang.
+\newblock {CQR-SQL}: Conversational question reformulation enhanced text-to-sql
+  in context.
+\newblock In {\em Findings of the Association for Computational Linguistics:
+  EMNLP 2022}, pages 532--544. Association for Computational Linguistics, 2022.
+
+\bibitem{yu2019cosql}
+Tao Yu, Rui Zhang, Kai Yang, Michihiro Yasunaga, Dongxu Wang, Zifan Li, James
+  Ma, Irene Li, Qingning Yao, Shanelle Roman, Zicheng Lin, and Dragomir Radev.
+\newblock {CoSQL}: A conversational text-to-sql challenge towards cross-domain
+  natural language interfaces to databases.
+\newblock In {\em Proceedings of the 2019 Conference on Empirical Methods in
+  Natural Language Processing and the 9th International Joint Conference on
+  Natural Language Processing}, pages 1962--1979. Association for Computational
+  Linguistics, 2019.
+
+\bibitem{yu2018spider}
+Tao Yu, Rui Zhang, Kai Yang, Michihiro Yasunaga, Dongxu Wang, Zifan Li, James
+  Ma, Irene Li, Qingning Yao, Shanelle Roman, Zilin Zhang, and Dragomir Radev.
+\newblock Spider: A large-scale human-labeled dataset for complex and
+  cross-domain semantic parsing and text-to-sql task.
+\newblock In {\em Proceedings of the 2018 Conference on Empirical Methods in
+  Natural Language Processing}, pages 3911--3921. Association for Computational
+  Linguistics, 2018.
+
+\bibitem{yu2019sparc}
+Tao Yu, Rui Zhang, Michihiro Yasunaga, Dongxu Wang, Zifan Li, James Ma, Irene
+  Li, Qingning Yao, Shanelle Roman, Zicheng Lin, and Dragomir Radev.
+\newblock {SParC}: Cross-domain semantic parsing in context.
+\newblock In {\em Proceedings of the 57th Annual Meeting of the Association for
+  Computational Linguistics}, pages 4511--4523. Association for Computational
+  Linguistics, 2019.
+
+\end{thebibliography}

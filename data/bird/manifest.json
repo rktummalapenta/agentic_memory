@@ -1,0 +1,22 @@
+{
+  "source_archive": "google-drive:13VLWIwpw5E3d5DUkMvzw7hvHE67a4XkG",
+  "question_source": "data/bird/raw/mini_dev/minidev/MINIDEV/mini_dev_sqlite.json",
+  "selected_database": "data/bird/bird.db",
+  "question_count": 32,
+  "table_count": 8,
+  "tables": [
+    "account",
+    "card",
+    "client",
+    "disp",
+    "district",
+    "loan",
+    "order",
+    "trans"
+  ],
+  "extracted_members": [
+    "minidev/MINIDEV/dev_databases/financial/financial.sqlite",
+    "minidev/MINIDEV/mini_dev_sqlite.json",
+    "minidev/MINIDEV/dev_tables.json"
+  ]
+}

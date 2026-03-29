@@ -1,0 +1,5 @@
+group_name,group_value,condition,label,correct,total,accuracy,ci_low,ci_high,gain_vs_A,gain_ci_low,gain_ci_high
+overall,overall,A,A,95,580,0.163793,0.135904,0.196106,,,
+overall,overall,B,B wm2,461,580,0.794828,0.760074,0.825702,0.631034,0.587931,0.672414
+overall,overall,C,C ep3,449,580,0.774138,0.738368,0.8063,0.610345,0.567241,0.651724
+overall,overall,D,D sem1,447,580,0.77069,0.734762,0.803055,0.606897,0.565517,0.648276
